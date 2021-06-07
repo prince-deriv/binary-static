@@ -666,6 +666,10 @@ body #not_authenticated_financial ul.checked > li {
 
 body ul.checked > li.spaced {
     margin-bottom: 1.5em;
+
+    strong {
+        color: $COLOR_BLUE;
+    }
 }
 
 .liquidity-solutions-content {
