@@ -1025,6 +1025,9 @@ div.kineticjs-content {
   font-weight: 100;
   margin-bottom: 0; }
 
+.note {
+  font-size: 0.8695652174rem; }
+
 #account_currency {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -1419,6 +1422,11 @@ body #_elev_io ._elevio_articlelink > div {
 
 body #not_authenticated_financial ul.checked > li {
   list-style: none; }
+
+body ul.checked > li.spaced {
+  margin-bottom: 1.5em; }
+  body ul.checked > li.spaced strong {
+    color: #2a3052; }
 
 .liquidity-solutions-content .box {
   border: 1px solid #c2c2c2;
@@ -2201,11 +2209,54 @@ body #not_authenticated_financial ul.checked > li {
       .why-us-content .awards-section .horizontal-margin {
         margin: 15px 15px 20px; } }
 
+.deactivated-account-content {
+  text-align: center; }
+  .deactivated-account-content .close-user-account {
+    height: 25vh; }
+    .deactivated-account-content .close-user-account .msg_main_modal .notice-msg {
+      background-color: transparent;
+      height: auto;
+      margin: auto; }
+      .deactivated-account-content .close-user-account .msg_main_modal .notice-msg img {
+        width: 4rem;
+        margin-bottom: 1rem; }
+      .deactivated-account-content .close-user-account .msg_main_modal .notice-msg p {
+        font-weight: 500; }
+      @media (max-width: 500px) {
+        .deactivated-account-content .close-user-account .msg_main_modal .notice-msg h1 {
+          font-size: 30px; } }
+      @media (max-width: 500px) {
+        .deactivated-account-content .close-user-account .msg_main_modal .notice-msg {
+          width: 90%; } }
+    @media (max-width: 500px) {
+      .deactivated-account-content .close-user-account {
+        margin-bottom: 5rem; } }
+
+.account-closure .notice-msg-wrapper {
+  background-color: #fef1cf;
+  margin-top: 65px; }
+
+.account-closure .notice-msg-text {
+  color: #000;
+  overflow: hidden;
+  margin: 0;
+  text-align: center; }
+
 .account-closure-form {
   text-align: left;
   line-height: 40px; }
-  .account-closure-form span {
-    padding-left: 15px; }
+  .account-closure-form .margin-top-20 {
+    margin-top: 20px; }
+  .account-closure-form .textarea-container {
+    display: grid; }
+  .account-closure-form p {
+    font-size: 1rem; }
+  .account-closure-form textarea {
+    width: 90%;
+    max-width: 350px;
+    height: 80px;
+    margin-top: 10px;
+    margin-bottom: 10px; }
 
 .account-closure-subtitle {
   margin-top: 0;
@@ -2317,6 +2368,29 @@ body #not_authenticated_financial ul.checked > li {
 
 .signal_provider-image {
   border: 2px solid #dedede; }
+
+.payment-agent .action-button a {
+  color: #fff;
+  text-align: center;
+  background: #2e8836;
+  border-radius: 4px;
+  padding: 10px 25px;
+  display: inline-block;
+  letter-spacing: 0.75px;
+  font-weight: 500;
+  font-size: 1.15rem;
+  width: 100%;
+  border-radius: 3px;
+  max-width: 295px;
+  padding: 1em; }
+  .payment-agent .action-button a:visited {
+    color: #fff; }
+  .payment-agent .action-button a:hover, .payment-agent .action-button a:active {
+    text-decoration: none;
+    background-color: #14602b; }
+
+.payment-agent .footer-box {
+  margin-top: 3em; }
 
 .timeline {
   margin: 0 auto;
