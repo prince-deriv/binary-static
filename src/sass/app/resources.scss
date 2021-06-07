@@ -35,13 +35,22 @@
 
 #trading-date-container {
     display: flex;
+    position: relative;
 
+    input[type=date] {
+        margin: 0 0.5em;
+    }
     label {
         display: flex;
         align-items: center;
 
         .ux-date {
-            margin: 0 0.5em;
+            position: absolute;
+            background: $COLOR_WHITE;
+            color: $COLOR_BLACK;
+            font-size: $FONT_SIZE_N;
+            left: 60px;
+            width: calc(100% - 15em);
         }
     }
 }
