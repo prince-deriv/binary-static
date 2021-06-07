@@ -78,16 +78,16 @@ const PaymentAgent = () => (
                     <p>{it.L('Interested, so what\'s next? If you can offer our Clients a specific e-wallet method or a local payment option that is not already provided by [_1], and you have a good track record in the market, then we would love to [_2]hear from you![_3]', it.website_name, `<a href='mailto:${it.affiliate_email}'>`, '</a>')}</p>
                    
                     <ul className='checked'>
-                        <li className="spaced"><strong>{it.L('Log in or sign up')}</strong> {it.L('[_1]Log in if you have an account. Haven\'t joined us yet? Go ahead and sign up[_2]','<div class="margin-top-5">','</div>')}</li>
-                        <li className="spaced"><strong>{it.L('Go to cashier > Payment agents')}</strong> {it.L('[_1]Click on the sign up button to start the process.[_2]','<div class="margin-top-5">','</div>')}</li>
-                        <li className="spaced"><strong>{it.L('Fill out the application form')}</strong> {it.L('[_1]Enter your details and attach proofs of your identity and address.[_2]','<div class="margin-top-5">','</div>')}</li>
-                        <li className="spaced"><strong>{it.L('Choose your payment methods')}</strong> {it.L('[_1]Select payment methods that you\'ll accept from clients.[_2]','<div class="margin-top-5">','</div>')}</li>
-                        <li className="spaced"><strong>{it.L('Get listed')}</strong> {it.L('[_1]After the final approval from our compliance team, we\'ll publish your details on our payment agent listing.[_2]','<div class="margin-top-5">','</div>')}</li>
+                        <li className='spaced'><strong>{it.L('Log in or sign up')}</strong> {it.L('[_1]Log in if you have an account. Haven\'t joined us yet? Go ahead and sign up[_2]','<div class="margin-top-5">','</div>')}</li>
+                        <li className='spaced'><strong>{it.L('Go to cashier > Payment agents')}</strong> {it.L('[_1]Click on the sign up button to start the process.[_2]','<div class="margin-top-5">','</div>')}</li>
+                        <li className='spaced'><strong>{it.L('Fill out the application form')}</strong> {it.L('[_1]Enter your details and attach proofs of your identity and address.[_2]','<div class="margin-top-5">','</div>')}</li>
+                        <li className='spaced'><strong>{it.L('Choose your payment methods')}</strong> {it.L('[_1]Select payment methods that you\'ll accept from clients.[_2]','<div class="margin-top-5">','</div>')}</li>
+                        <li className='spaced'><strong>{it.L('Get listed')}</strong> {it.L('[_1]After the final approval from our compliance team, we\'ll publish your details on our payment agent listing.[_2]','<div class="margin-top-5">','</div>')}</li>
                     </ul>
 
-                    <div className="footer-box">    
+                    <div className='footer-box'>
                         <div className='action-button'>
-                            <a href="#">{it.L('Next')}</a>
+                            <a href='#'>{it.L('Next')}</a>
                         </div>
                     </div>
                 </Section>
