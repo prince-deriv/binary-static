@@ -699,7 +699,7 @@ tbody#instruments > tr > td {
   display: flex;
   position: relative; }
   #trading-date-container input[type=date] {
-    margin: 0 0.5em; }
+    margin: 0 0.5rem; }
   #trading-date-container label {
     display: -webkit-box;
     display: -ms-flexbox;
@@ -712,8 +712,8 @@ tbody#instruments > tr > td {
       background: #fff;
       color: #000;
       font-size: 1rem;
-      left: 60px;
-      width: calc(100% - 15em); }
+      left: 3.5rem;
+      width: calc(100% - 15rem); }
 
 #asset_index_wrapper {
   max-width: 1200px; }
