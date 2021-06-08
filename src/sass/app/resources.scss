@@ -38,7 +38,7 @@
     position: relative;
 
     input[type=date] {
-        margin: 0 0.5em;
+        margin: 0 0.5rem;
     }
     label {
         display: flex;
@@ -49,8 +49,8 @@
             background: $COLOR_WHITE;
             color: $COLOR_BLACK;
             font-size: $FONT_SIZE_N;
-            left: 60px;
-            width: calc(100% - 15em);
+            left: 3.5rem;
+            width: calc(100% - 15rem);
         }
     }
 }
