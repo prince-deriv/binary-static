@@ -706,14 +706,15 @@ tbody#instruments > tr > td {
     display: flex;
     -webkit-box-align: center;
         -ms-flex-align: center;
-            align-items: center; }
+            align-items: center;
+    min-width: 5rem; }
     #trading-date-container label .ux-date {
       position: absolute;
       background: #fff;
       color: #000;
       font-size: 1rem;
-      left: 3.5rem;
-      width: calc(100% - 15rem); }
+      left: 6rem;
+      width: calc(100% - 10rem); }
 
 #asset_index_wrapper {
   max-width: 1200px; }

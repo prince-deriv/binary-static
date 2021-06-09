@@ -18165,7 +18165,7 @@ var TradingTimesUI = function () {
                 if (diffInDays < 0 || diffInDays >= 1) {
                     $('span.ux-date').text('');
                 } else {
-                    $('span.ux-date').text('Today');
+                    $('span.ux-date').text(localize('Today'));
                 }
             });
         }
