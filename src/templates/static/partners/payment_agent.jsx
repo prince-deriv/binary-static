@@ -87,7 +87,7 @@ const PaymentAgent = () => (
 
                     <div className='footer-box'>
                         <div className='action-button'>
-                            <a href='#'>{it.L('Next')}</a>
+                            <a href='#' id="payment-agent-next-btn">{it.L('Next')}</a>
                         </div>
                     </div>
                 </Section>
