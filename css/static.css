@@ -1025,6 +1025,9 @@ div.kineticjs-content {
   font-weight: 100;
   margin-bottom: 0; }
 
+.note {
+  font-size: 0.8695652174rem; }
+
 #account_currency {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -1419,6 +1422,11 @@ body #_elev_io ._elevio_articlelink > div {
 
 body #not_authenticated_financial ul.checked > li {
   list-style: none; }
+
+body ul.checked > li.spaced {
+  margin-bottom: 1.5em; }
+  body ul.checked > li.spaced strong {
+    color: #2a3052; }
 
 .liquidity-solutions-content .box {
   border: 1px solid #c2c2c2;
@@ -2360,6 +2368,29 @@ body #not_authenticated_financial ul.checked > li {
 
 .signal_provider-image {
   border: 2px solid #dedede; }
+
+.payment-agent .action-button a {
+  color: #fff;
+  text-align: center;
+  background: #2e8836;
+  border-radius: 4px;
+  padding: 10px 25px;
+  display: inline-block;
+  letter-spacing: 0.75px;
+  font-weight: 500;
+  font-size: 1.15rem;
+  width: 100%;
+  border-radius: 3px;
+  max-width: 295px;
+  padding: 1em; }
+  .payment-agent .action-button a:visited {
+    color: #fff; }
+  .payment-agent .action-button a:hover, .payment-agent .action-button a:active {
+    text-decoration: none;
+    background-color: #14602b; }
+
+.payment-agent .footer-box {
+  margin-top: 3em; }
 
 .timeline {
   margin: 0 auto;

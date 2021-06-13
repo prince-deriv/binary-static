@@ -696,25 +696,16 @@ tbody#instruments > tr > td {
 #trading-date-container {
   display: -webkit-box;
   display: -ms-flexbox;
-  display: flex;
-  position: relative; }
-  #trading-date-container input[type=date] {
-    margin: 0 0.5rem; }
+  display: flex; }
   #trading-date-container label {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
     -webkit-box-align: center;
         -ms-flex-align: center;
-            align-items: center;
-    min-width: 5rem; }
+            align-items: center; }
     #trading-date-container label .ux-date {
-      position: absolute;
-      background: #fff;
-      color: #000;
-      font-size: 1rem;
-      left: 6rem;
-      width: calc(100% - 10rem); }
+      margin: 0 0.5em; }
 
 #asset_index_wrapper {
   max-width: 1200px; }
