@@ -26,17 +26,16 @@ module.exports = {
         onUnload: () => { Scroll.offScroll(); },
     },
     PaymentAgent: {
-        onLoad  : () => { 
-            Scroll.sidebarScroll($('.payment-agent')); 
+        onLoad: () => {
+            Scroll.sidebarScroll($('.payment-agent'));
             
-            if(isLoggedIn()){
+            if (isLoggedIn()){
                 $('#payment-agent-next-btn').attr('href', Url.urlFor('cashier'));
-            }
-            else{
+            } else {
                 $('#payment-agent-next-btn').click(e => {
                     e.preventDefault();
                     Login.redirectToLogin();
-                })
+                });
             }
         },
         onUnload: () => { Scroll.offScroll(); },
