@@ -75,7 +75,7 @@ const PaymentAgent = () => (
                 </Section>
 
                 <Section id='next-steps' header={it.L('How does it work?')}>
-                    <p>{it.L('Interested, so what\'s next? If you can offer our Clients a specific e-wallet method or a local payment option that is not already provided by [_1], and you have a good track record in the market, then we would love to [_2]hear from you![_3]', it.website_name, `<a href='mailto:${it.affiliate_email}'>`, '</a>')}</p>
+                    <p>{it.L('Interested, so what\'s next? If you can offer our Clients a specific e-wallet method or a local payment option that is not already provided by [_1], and you have a good track record in the market, then we would love to [_2]hear from you![_3]', it.website_name, `<a href='mailto:${it.payment_agent_email}'>`, '</a>')}</p>
                    
                     <ul className='checked'>
                         <li className='spaced'><strong>{it.L('Log in or sign up')}</strong> {it.L('[_1]Log in if you have an account. Haven\'t joined us yet? Go ahead and sign up[_2]','<div class="margin-top-5">','</div>')}</li>

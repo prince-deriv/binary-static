@@ -250,9 +250,10 @@ async function compile(page) {
 
             affiliate_signup_url  : `https://login.binary.com/signup.php?lang=${affiliate_language_code}`,
             affiliate_password_url: `https://login.binary.com/password-reset.php?lang=${affiliate_language_code}`,
-            affiliate_email       : 'paymentagents@binary.com',
+            affiliate_email       : 'partners@binary.com',
             deriv_banner_url      : `https://deriv.com/${deriv_language_code}`,
             deriv_career_url      : 'https://deriv.com/careers',
+            payment_agent_email   : 'paymentagents@binary.com',
         };
 
         const context               = context_builder.buildFor(model);
