@@ -48,9 +48,9 @@ const TradingTimesUI = (() => {
         });
         $date.val(localize('Today'));
         if ($(window).width() < 480) {
-            // Create a label to be friendlier
-            const $label = $('label[for=trading-date]');
-            $label.append($('<span/>', { class: 'ux-date foot-note' }));
+            const $input_group = $('#trading-date-container .input-group');
+            $input_group.append($('<span/>', { class: 'ux-date foot-note' }));
+
             if (!$date.val()) {
                 $('span.ux-date').text(localize('Today'));
                 $date.val(isoFormattedDate);
@@ -59,9 +59,9 @@ const TradingTimesUI = (() => {
             $date.change(() => {
                 const diffInDays = moment().diff(moment($date.val()), 'days', true);
                 if (diffInDays < 0 || diffInDays >= 1) {
-                    $('span.ux-date').text('');
+                    $('span.ux-date').text('').hide();
                 } else {
-                    $('span.ux-date').text(localize('Today'));
+                    $('span.ux-date').text(localize('Today')).show();
                 }
             });
         }
