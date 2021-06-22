@@ -229,8 +229,7 @@ const Validation = (() => {
         } else if ('max' in options && isMoreThanMax(value, options)) {
             is_ok   = false;
             message = localize('Should be less than [_1]', addComma(options.max, options.format_money ? getDecimalPlaces(Client.get('currency')) : undefined));
-        }  
-        
+        }
 
         // Priority Validation
         if ('balance' in options && isLessThanBalance(value, options)) {
