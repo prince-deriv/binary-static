@@ -38,7 +38,7 @@
 
     .input-group {
         position: relative;
-        width: 100%;
+        margin: 0 0.5rem;
 
         .ux-date {
             position: absolute;
@@ -47,13 +47,20 @@
             background: $COLOR_WHITE;
             color: $COLOR_BLACK;
             font-size: $FONT_SIZE_N;
-            top: 0.2rem;
-            left: 1rem;
-            width: calc(100% - 35%);
-            height: calc(100% - 5px);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 1px solid $COLOR_LIGHT_GRAY;
+            padding: 0 0.3rem;
+            border-radius: 4px;
+            z-index: 1;
         }
         input[type=date] {
-            margin: 0 0.5rem;
+            margin: 0;
+            width: 100%;
+            position: relative;
+            z-index: 2;
         }
     }
     label {
