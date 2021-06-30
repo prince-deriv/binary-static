@@ -49,7 +49,6 @@ const TradingTimesUI = (() => {
         $date.val(localize('Today'));
         if ($(window).width() < 480) {
             const $input_group = $('#trading-date-container .input-group');
-
             const $date_input = $input_group.find('input');
 
             $input_group.append($('<span/>', { class: 'ux-date foot-note' }));
