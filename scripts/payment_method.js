@@ -14,7 +14,7 @@ const output_path = path.join(
   "payment_methods.json"
 );
 
-const filters = {
+const column_filters = {
   currencies: {
     delimeter: ",",
     type: "array",
@@ -27,6 +27,10 @@ const filters = {
     filter: "descriptionMinMax",
     type: "custom",
   },
+  countries: {
+    filter: "includeExclude",
+    type: "custom",
+  },
 };
 
 const replaceAll = (string, search, replacement) => {
@@ -35,6 +39,10 @@ const replaceAll = (string, search, replacement) => {
 
 const cleanStr = (str) => {
   return replaceAll(str.toLowerCase(), " ", "");
+};
+
+const cleanArray = (arr) => {
+  return arr.map((a) => a.trim());
 };
 
 const escapeStr = (str) => {
@@ -64,15 +72,52 @@ const filterFunctions = {
       max,
     };
   },
+  includeExclude: (value) => {
+    const items = cleanArray(value.split(","));
+
+    const content = {
+      included: [],
+      excluded: [],
+    };
+
+    items.map((i) => {
+      if (i.includes("-")) {
+        content.excluded.push(replaceAll(i, "-", ""));
+      } else {
+        content.included.push(i);
+      }
+    });
+
+    return content;
+  },
+  categorize: (data) => {
+    categories = {};
+
+    data.map((d) => {
+      const { category, name } = d;
+
+      if (category) {
+        d.logo = `${escapeStr(name)}.svg`;
+        d.reference = `${escapeStr(name)}.pdf`;
+
+        if (categories[category] == undefined) {
+          categories[category] = [];
+        }
+
+        delete d.category;
+        categories[category].push({ ...d });
+      }
+    });
+
+    return categories;
+  },
 };
 
 fs.createReadStream(source_path)
   .pipe(
     csv({
       mapHeaders: ({ header }) => {
-        const headings = {
-          "active/inactive": "status",
-        };
+        const headings = {};
 
         let header_text = escapeStr(header);
 
@@ -85,7 +130,7 @@ fs.createReadStream(source_path)
       mapValues: ({ header, index, value }) => {
         let final_value = value;
 
-        const filter_option = filters[header];
+        const filter_option = column_filters[header];
 
         if (filter_option) {
           const { delimeter, type, filter } = filter_option;
@@ -93,7 +138,7 @@ fs.createReadStream(source_path)
           switch (type) {
             case "array":
               {
-                final_value = value.split(delimeter);
+                final_value = cleanArray(value.split(delimeter));
               }
               break;
             case "custom":
@@ -112,14 +157,10 @@ fs.createReadStream(source_path)
     json.push(data);
   })
   .on("end", () => {
-    json.map(({ name }, i) => {
-      json[i]["logo"] = `${escapeStr(name)}.svg`;
-      json[i]["reference"] = `${escapeStr(name)}.pdf`;
-    });
-
-    const final_json = JSON.stringify(json, null, 2);
+    const parsed_json = filterFunctions.categorize(json);
+    const final_json = JSON.stringify(parsed_json, null, 2);
 
     fs.writeFile(output_path, final_json, "utf8", () => {
-      console.log("Payment Methods JSON has been generated");
+      console.log(`${output_path} has been generated`);
     });
   });
