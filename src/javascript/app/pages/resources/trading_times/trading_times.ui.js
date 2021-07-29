@@ -67,6 +67,7 @@ const TradingTimesUI = (() => {
                 if (diffInDays < 0 || diffInDays >= 1) {
                     $date_caption.text('').hide();
                     $date_input.show();
+                    $date_input.css('opacity',1);
                 } else {
                     $date_caption.text(localize('Today')).show();
                     $date_input.css('opacity',0);
