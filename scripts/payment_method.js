@@ -94,17 +94,20 @@ const filterFunctions = {
     categories = {};
 
     data.map((d) => {
-      const { category, name } = d;
+      const { category, key } = d;
+      const file_name = escapeStr(key);
 
       if (category) {
-        d.logo = `${escapeStr(name)}.svg`;
-        d.reference = `${escapeStr(name)}.pdf`;
+        d.logo = `${file_name}.svg`;
+        d.reference = `${file_name}.pdf`;
 
         if (categories[category] == undefined) {
           categories[category] = [];
         }
 
         delete d.category;
+        delete d.key;
+
         categories[category].push({ ...d });
       }
     });
