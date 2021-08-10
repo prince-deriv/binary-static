@@ -98,7 +98,7 @@ const filterFunctions = {
 
         return {
             ...d,
-            logo          : ucWord(sentencizeStr(key)),
+            logo          : replaceAll(escapeStr(key),"-","_"),
             reference     : `${file_name}.pdf`,
             is_crypto     : category.includes('Crypto'),
             is_fiat_onramp: category.includes('Fiat'),
