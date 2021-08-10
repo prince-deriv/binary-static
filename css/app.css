@@ -693,33 +693,6 @@ tbody#instruments > tr > td {
 #trading-times .ui-tabs-nav li, #asset-index .ui-tabs-nav li {
   margin-top: 5px; }
 
-#trading-date-container {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex; }
-  #trading-date-container .input-group {
-    position: relative; }
-    #trading-date-container .input-group input[type=date] {
-      margin: 0 0.5rem; }
-  #trading-date-container label {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
-    width: -webkit-fit-content;
-    width: -moz-fit-content;
-    width: fit-content;
-    max-width: 5rem; }
-    #trading-date-container label .ux-date {
-      position: absolute;
-      background: #fff;
-      color: #000;
-      font-size: 1rem;
-      left: 6rem;
-      width: calc(100% - 10rem); }
-
 #asset_index_wrapper {
   max-width: 1200px; }
   #asset_index_wrapper #asset-index.has-tabs.ui-tabs .ui-tabs-panel {
