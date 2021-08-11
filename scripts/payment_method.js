@@ -43,14 +43,6 @@ const cleanArray = (arr) => arr.map((a) => a.trim());
 
 const escapeStr = (str) => replaceAll(str.toLowerCase(), ' ', '_');
 
-const sentencizeStr = (str, delimeter) => str.split(delimeter).join(' ');
-
-const ucWord = (str) =>
-    str
-        .split(' ')
-        .map((s, k) => s.charAt(0).toUpperCase() + s.slice(1))
-        .join('');
-
 const filterFunctions = {
     descriptionMinMax: (value) => {
         const data = value.split('|');
@@ -92,18 +84,26 @@ const filterFunctions = {
 
         return content;
     },
-    flatten: (data) => data.map((d) => {
-        const { key, category } = d;
-        const file_name = escapeStr(key);
+    flatten: (data) =>
+        data
+            .map((d) => {
+                const { key, reference, platform } = d;
+                const file_name = escapeStr(key);
 
-        return {
-            ...d,
-            logo          : replaceAll(escapeStr(key),"-","_"),
-            reference     : `${file_name}.pdf`,
-            is_crypto     : category.includes('Crypto'),
-            is_fiat_onramp: category.includes('Fiat'),
-        };
-    }),
+                if (
+                    platform.toLowerCase().includes('binary') ||
+          platform.trim() === ''
+                ) {
+                    return {
+                        ...d,
+                        logo     : replaceAll(escapeStr(key), '-', '_'),
+                        reference: reference === 'yes' ? file_name : '',
+                    };
+                }
+
+                return null;
+            })
+            .filter((e) => e),
 };
 
 fs.createReadStream(source_path)
