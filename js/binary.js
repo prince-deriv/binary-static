@@ -29149,7 +29149,7 @@ var PaymentAgentTransfer = function () {
                     var pa_values = response.paymentagent_list.list.filter(function (a) {
                         return a.paymentagent_loginid === Client.get('loginid');
                     })[0];
-                    init(pa_values, currency);
+                    init(pa_values, currency, balance);
                 });
             } else {
                 setFormVisibility(false);
@@ -29164,15 +29164,18 @@ var PaymentAgentTransfer = function () {
         });
     };
 
-    var init = function init(pa, currency) {
+    var init = function init(pa, currency, balance) {
         var form_id = '#frm_paymentagent_transfer';
         $form_error = $('#form_error');
+
         setFormVisibility(true);
         PaymentAgentTransferUI.updateFormView(currency);
         trimDescriptionContent();
 
         common_request_fields = [{ request_field: 'paymentagent_transfer', value: 1 }, { request_field: 'currency', value: currency }];
-        FormManager.init(form_id, [{ selector: '#client_id', validations: ['req', ['regular', { regex: /^\w+\d+$/, message: localize('Please enter a valid Login ID.') }]], request_field: 'transfer_to' }, { selector: '#amount', validations: ['req', ['number', { type: 'float', decimals: getDecimalPlaces(currency), min: pa ? pa.min_withdrawal : 10, max: max_withdrawal(pa, 2000), balance: Client.get('balance') }]] }, { selector: '#description', validations: ['general'] }, { request_field: 'dry_run', value: 1 }].concat(common_request_fields));
+
+        FormManager.init(form_id, [{ selector: '#client_id', validations: ['req', ['regular', { regex: /^\w+\d+$/, message: localize('Please enter a valid Login ID.') }]], request_field: 'transfer_to' }, { selector: '#amount', validations: ['req', ['number', { type: 'float', decimals: getDecimalPlaces(currency), min: pa ? pa.min_withdrawal : 10, max: max_withdrawal(balance, pa, 2000), balance: Client.get('balance') }]] }, { selector: '#description', validations: ['general'] }, { request_field: 'dry_run', value: 1 }].concat(common_request_fields));
+
         FormManager.handleSubmit({
             form_selector: form_id,
             fnc_response_handler: responseHandler,
@@ -29180,9 +29183,10 @@ var PaymentAgentTransfer = function () {
         });
     };
 
-    var max_withdrawal = function max_withdrawal(pa, fixed_max_withdrawal) {
+    var max_withdrawal = function max_withdrawal(balance, pa, fixed_max_withdrawal) {
         var pa_max_withdrawal = pa ? pa.max_withdrawal : fixed_max_withdrawal;
-        return pa_max_withdrawal;
+
+        return balance < pa_max_withdrawal ? balance : pa_max_withdrawal;
     };
 
     var setFormVisibility = function setFormVisibility(is_visible) {
