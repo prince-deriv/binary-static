@@ -17,20 +17,17 @@ const output_path = path.join(
 
 const column_filters = {
     currencies: {
-        delimeter: ',',
-        type     : 'array',
-    },
-    withdrawal: {
-        filter: 'descriptionMinMax',
-        type  : 'custom',
-    },
-    deposit: {
-        filter: 'descriptionMinMax',
+        filter: 'multipleEntries',
         type  : 'custom',
     },
     countries: {
         filter: 'includeExclude',
         type  : 'custom',
+    },
+    locale: {
+        type     : 'array',
+        delimeter: ',',
+        textcase : 'lowercase',
     },
 };
 
@@ -41,7 +38,35 @@ const cleanStr = (str) => replaceAll(str.toLowerCase(), ' ', '');
 
 const cleanArray = (arr) => arr.map((a) => a.trim());
 
+const filterArray = (arr) => arr.filter((e) => e);
+
 const escapeStr = (str) => replaceAll(str.toLowerCase(), ' ', '_');
+
+const sentencizeStr = (str, delimeter) => str.split(delimeter).join(' ');
+
+const ucWord = (str) =>
+    str
+        .split(' ')
+        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+        .join('');
+
+const caseArray = (arr, c) => {
+    let array_result = [];
+
+    switch (c) {
+        case 'uppercase':
+            array_result = arr.map((e) => e.toUpperCase());
+            break;
+        case 'lowercase':
+            array_result = arr.map((e) => e.toLowerCase());
+            break;
+        default:
+            array_result = arr;
+            break;
+    }
+
+    return array_result;
+};
 
 const filterFunctions = {
     descriptionMinMax: (value) => {
@@ -84,26 +109,37 @@ const filterFunctions = {
 
         return content;
     },
-    flatten: (data) =>
-        data
-            .map((d) => {
-                const { key, reference, platform } = d;
-                const file_name = escapeStr(key);
+    multipleEntries: (value) => {
+        const items = cleanArray(value.split('|'));
 
-                if (
-                    platform.toLowerCase().includes('binary') ||
+        const final_items = [];
+
+        items.map((e) => {
+            const data = filterArray(cleanArray(e.split(',')));
+            final_items.push(data);
+        });
+
+        return final_items;
+    },
+    flatten: (data) => data
+        .map((d) => {
+            const { key, platform, reference } = d;
+            const file_name = escapeStr(key);
+
+            if (
+                platform.toLowerCase().includes('binary') ||
           platform.trim() === ''
-                ) {
-                    return {
-                        ...d,
-                        logo     : replaceAll(escapeStr(key), '-', '_'),
-                        reference: reference === 'yes' ? file_name : '',
-                    };
-                }
+            ) {
+                return {
+                    ...d,
+                    logo     : ucWord(sentencizeStr(key, '-')),
+                    reference: reference === 'yes' ? file_name : '',
+                };
+            }
 
-                return null;
-            })
-            .filter((e) => e),
+            return false;
+        })
+        .filter((e) => e),
 };
 
 fs.createReadStream(source_path)
@@ -127,12 +163,14 @@ fs.createReadStream(source_path)
                 const filter_option = column_filters[header];
 
                 if (filter_option) {
-                    const { delimeter, type, filter } = filter_option;
+                    const { delimeter, type, filter, textcase } = filter_option;
 
                     switch (type) {
                         case 'array':
-                            final_value = cleanArray(value.split(delimeter));
-
+                            final_value = caseArray(
+                                filterArray(cleanArray(value.split(delimeter))),
+                                textcase
+                            );
                             break;
                         case 'custom':
                             final_value = filterFunctions[filter](value);
