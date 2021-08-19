@@ -12129,7 +12129,7 @@ var Redirect = function () {
         var actions_map = {
             signup: { path: 'new_account/virtualws' },
             reset_password: { path: 'user/reset_passwordws' },
-            trading_platform_password_reset: { path: 'user/trading_reset_passwordws' },
+            trading_platform_mt5_password_reset: { path: 'user/trading_reset_passwordws' },
             payment_withdraw: { path: 'cashier/forwardws', query: 'action=withdraw' },
             payment_agent_withdraw: { path: 'paymentagent/withdrawws' },
             trading_platform_investor_password_reset: { path: 'user/metatrader' }
@@ -28511,8 +28511,6 @@ module.exports = Authenticate;
 var Client = __webpack_require__(/*! ../../../base/client */ "./src/javascript/app/base/client.js");
 var BinarySocket = __webpack_require__(/*! ../../../base/socket */ "./src/javascript/app/base/socket.js");
 var Dialog = __webpack_require__(/*! ../../../common/attach_dom/dialog */ "./src/javascript/app/common/attach_dom/dialog.js");
-var FormManager = __webpack_require__(/*! ../../../common/form_manager */ "./src/javascript/app/common/form_manager.js");
-var Password = __webpack_require__(/*! ../../../../_common/check_password */ "./src/javascript/_common/check_password.js");
 var getElementById = __webpack_require__(/*! ../../../../_common/common_functions */ "./src/javascript/_common/common_functions.js").getElementById;
 var localize = __webpack_require__(/*! ../../../../_common/localize */ "./src/javascript/_common/localize.js").localize;
 var State = __webpack_require__(/*! ../../../../_common/storage */ "./src/javascript/_common/storage.js").State;
@@ -28522,18 +28520,11 @@ var Url = __webpack_require__(/*! ../../../../_common/url */ "./src/javascript/_
 var ChangePassword = function () {
     var $change_password_loading = void 0,
         $change_password_container = void 0,
-        binary_form_id = void 0,
-        trading_form_id = void 0,
         social_unlink_btn_id = void 0,
         $binary_password_container = void 0,
         $social_signup_container = void 0,
         $trading_password_container = void 0,
-        $set_trading_password_container = void 0,
         social_signup_identifier = void 0,
-        $msg_success_container = void 0,
-        $msg_success = void 0,
-        $msg_success_trading_container = void 0,
-        $msg_success_trading = void 0,
         forgot_binary_pw_btn_id = void 0,
         forgot_trading_pw_btn_id = void 0;
 
@@ -28552,17 +28543,10 @@ var ChangePassword = function () {
         }
     };
 
-    var shouldSetTradingPassword = function shouldSetTradingPassword() {
-        var _State$getResponse = State.getResponse('get_account_status'),
-            status = _State$getResponse.status;
-
-        return Array.isArray(status) && status.includes('trading_password_required');
-    };
-
     var hasSocialSignup = function hasSocialSignup() {
-        var _State$getResponse2 = State.getResponse('get_account_status'),
-            social_identity_provider = _State$getResponse2.social_identity_provider,
-            status = _State$getResponse2.status;
+        var _State$getResponse = State.getResponse('get_account_status'),
+            social_identity_provider = _State$getResponse.social_identity_provider,
+            status = _State$getResponse.status;
 
         social_signup_identifier = toTitleCase(social_identity_provider);
         return Array.isArray(status) && status.includes('social_signup');
@@ -28578,16 +28562,16 @@ var ChangePassword = function () {
                 }
                 return localize('Check the email account associated with your Apple ID and click the link in the email to proceed.');
             case 'trading_password':
-                return localize('Please click on the link in the email to reset your trading password.');
+                return localize('Please click on the link in the email to change your MT5 password.');
             default:
-                return localize('Please click on the link in the email to reset your binary password.');
+                return localize('Please click on the link in the email to change your binary password.');
         }
     };
 
     var onSentEmail = function onSentEmail(event_type, social_identifier) {
         var req = {
             verify_email: Client.get('email'),
-            type: event_type === 'trading_password' ? 'trading_platform_password_reset' : 'reset_password'
+            type: event_type === 'trading_password' ? 'trading_platform_mt5_password_reset' : 'reset_password'
         };
         BinarySocket.send(req).then(function () {
             Dialog.alert({
@@ -28600,15 +28584,6 @@ var ChangePassword = function () {
 
     var init = function init() {
         $binary_password_container.setVisibility(1);
-
-        // Handle change binary password
-        FormManager.init(binary_form_id, [{ selector: '#old_password', validations: ['req', ['length', { min: 6, max: 25 }]], clear_form_error_on_input: true }, { selector: '#new_password', validations: ['req', 'password', ['not_equal', { to: '#old_password', name1: localize('Current password'), name2: localize('New password') }], 'compare_to_email'] }, { request_field: 'change_password', value: 1 }]);
-        FormManager.handleSubmit({
-            form_selector: binary_form_id,
-            fnc_response_handler: changePasswordHandler
-        });
-
-        // Handle forgot binary password
         $(forgot_binary_pw_btn_id).off('click').on('click', function () {
             onSentEmail('binary_password');
         });
@@ -28620,6 +28595,7 @@ var ChangePassword = function () {
             getElementById('frm_change_password').setVisibility(0);
         } else {
             $social_signup_container.setVisibility(1);
+            getElementById('linked_social_hint').innerHTML = localize('You\'re using your [_1] account to log in to your Binary.com account. To change your login method into using a username and password, click the [_2]Unlink[_3] button.', [social_signups[social_signup_identifier].name, '<strong>', '</strong>']);
             getElementById('linked_social_identifier').innerHTML = localize('Linked with [_1]', social_signups[social_signup_identifier].name);
             getElementById('ic_linked_social_identifier').src = Url.urlForStatic('images/pages/account_password/' + social_signups[social_signup_identifier].icon + '.svg');
 
@@ -28641,15 +28617,6 @@ var ChangePassword = function () {
 
     var initTradingPassword = function initTradingPassword() {
         $trading_password_container.setVisibility(1);
-        $set_trading_password_container.setVisibility(0);
-
-        // Handle change trading password
-        FormManager.init(trading_form_id, [{ selector: '#old_trading_password', request_field: 'old_password', validations: ['req', ['length', { min: 6, max: 25 }]], clear_form_error_on_input: true }, { selector: '#new_trading_password', request_field: 'new_password', validations: ['req', 'password', ['not_equal', { to: '#old_trading_password', name1: localize('Current password'), name2: localize('New password') }], 'compare_to_email'] }, { request_field: 'trading_platform_password_change', value: 1 }]);
-        FormManager.handleSubmit({
-            form_selector: trading_form_id,
-            fnc_response_handler: tradingPwHandler,
-            enable_button: true
-        });
 
         // Handle forgot trading password
         $(forgot_trading_pw_btn_id).off('click').on('click', function () {
@@ -28657,88 +28624,14 @@ var ChangePassword = function () {
         });
     };
 
-    var initSetTradingPassword = function initSetTradingPassword() {
-        $set_trading_password_container.setVisibility(1);
-
-        // Handle set trading password
-        FormManager.init(trading_form_id, [{ selector: '#set_new_trading_password', request_field: 'new_password', validations: ['req', 'password', 'compare_to_email'] }, { request_field: 'old_password', value: '' }, { request_field: 'trading_platform_password_change', value: 1 }], null, shouldSetTradingPassword());
-        FormManager.handleSubmit({
-            form_selector: trading_form_id,
-            fnc_response_handler: setTradingPwHandler
-        });
-    };
-
-    var changePasswordHandler = function changePasswordHandler(response) {
-        if ('error' in response) {
-            var $frm_change_binary_password_error = $('#frm_change_binary_password_error');
-            $frm_change_binary_password_error.text(response.error.message).setVisibility(1);
-            setTimeout(function () {
-                $frm_change_binary_password_error.setVisibility(0);
-            }, 5000);
-        } else {
-            $msg_success.text(localize('Your binary password has been changed. Please log in again.'));
-            $msg_success_container.setVisibility(1);
-            setTimeout(function () {
-                Client.sendLogoutRequest(true);
-            }, 5000);
-        }
-    };
-
-    var setTradingPwHandler = function setTradingPwHandler(response) {
-        if ('error' in response) {
-            var $frm_set_trading_password_error = $('#frm_set_trading_password_error');
-            $frm_set_trading_password_error.text(response.error.message).setVisibility(1);
-            setTimeout(function () {
-                $frm_set_trading_password_error.setVisibility(0);
-            }, 5000);
-        } else {
-            $msg_success_trading.text(localize('Your trading password has been set. Please use this to log in to MetaTrader 5.'));
-            $msg_success_trading_container.setVisibility(1);
-            $trading_password_container.setVisibility(1);
-            $set_trading_password_container.setVisibility(0);
-            $(trading_form_id).trigger('reset');
-            setTimeout(function () {
-                $msg_success_trading.setVisibility(0);
-                BinarySocket.send({ get_account_status: 1 }).then(function () {
-                    return onLoad();
-                });
-            }, 5000);
-        }
-    };
-
-    var tradingPwHandler = function tradingPwHandler(response) {
-        if ('error' in response) {
-            var $frm_change_trading_password_error = $('#frm_change_trading_password_error');
-            $frm_change_trading_password_error.text(response.error.message).setVisibility(1);
-            setTimeout(function () {
-                $frm_change_trading_password_error.setVisibility(0);
-            }, 5000);
-        } else {
-            $msg_success_trading.text(localize('Your trading password has been changed. Please use this to log in to MetaTrader 5.'));
-            $msg_success_trading_container.setVisibility(1);
-            $(trading_form_id).trigger('reset');
-            Password.removeCheck('#new_trading_password', true);
-            setTimeout(function () {
-                $msg_success_trading_container.setVisibility(0);
-            }, 5000);
-        }
-    };
-
     var onLoad = function onLoad() {
         $change_password_container = $('#change_password_container');
         $change_password_loading = $('#change_password_loading');
-        binary_form_id = '#frm_change_password';
-        trading_form_id = '#frm_trading_password';
         social_unlink_btn_id = '#social_unlink_button';
         $binary_password_container = $('#binary_password_container');
         $social_signup_container = $('#social_signup_container');
         $trading_password_container = $('#trading_password_container');
-        $set_trading_password_container = $('#set_trading_password_container');
         social_signup_identifier = '';
-        $msg_success_container = $('#msg_success_container');
-        $msg_success = $('#msg_success');
-        $msg_success_trading_container = $('#msg_success_trading_container');
-        $msg_success_trading = $('#msg_success_trading');
         forgot_binary_pw_btn_id = '#forgot_binary_pw_btn';
         forgot_trading_pw_btn_id = '#forgot_trading_pw_btn';
 
@@ -28747,7 +28640,6 @@ var ChangePassword = function () {
         BinarySocket.wait('get_account_status').then(function () {
             $change_password_loading.setVisibility(0);
             $change_password_container.setVisibility(1);
-            var should_set_trading_password = shouldSetTradingPassword();
             var has_social_signup = hasSocialSignup();
 
             if (has_social_signup) {
@@ -28755,11 +28647,7 @@ var ChangePassword = function () {
             } else {
                 init();
             }
-            if (should_set_trading_password) {
-                initSetTradingPassword();
-            } else {
-                initTradingPassword();
-            }
+            initTradingPassword();
         });
     };
 
@@ -34944,121 +34832,180 @@ var MetaTrader = function () {
         if (Validation.validate('#frm_' + action)) {
             MetaTraderUI.disableButton(action);
             // further validations before submit (password_check)
-            MetaTraderUI.postValidate(acc_type, action).then(function (is_ok) {
-                if (!is_ok) {
-                    MetaTraderUI.enableButton(action);
-                    return;
-                }
+            MetaTraderUI.postValidate(acc_type, action).then(function () {
+                var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(is_ok) {
+                    var req, _ref3, mt5_login_list, has_mt5_account;
 
-                if (action === 'verify_password_reset_token') {
-                    MetaTraderUI.setToken($('#txt_verification_code').val());
-                    if (typeof actions_info[action].onSuccess === 'function') {
-                        actions_info[action].onSuccess({}, MetaTraderUI.$form());
-                    }
-                    return;
-                }
-
-                var req = makeRequestObject(acc_type, action);
-                BinarySocket.send(req).then(function () {
-                    var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(response) {
-                        var parent_action, success_msg;
-                        return regeneratorRuntime.wrap(function _callee2$(_context2) {
-                            while (1) {
-                                switch (_context2.prev = _context2.next) {
-                                    case 0:
-                                        if (!response.error) {
-                                            _context2.next = 7;
-                                            break;
-                                        }
-
-                                        MetaTraderUI.displayFormMessage(response.error.message, action);
-                                        if (typeof actions_info[action].onError === 'function') {
-                                            actions_info[action].onError(response, MetaTraderUI.$form());
-                                        }
-                                        if (/^MT5(Deposit|Withdrawal)Error$/.test(response.error.code)) {
-                                            // update limits if outdated due to exchange rates changing for currency
-                                            BinarySocket.send({ website_status: 1 }).then(function (response_w) {
-                                                if (response_w.website_status) {
-                                                    setCurrencies(response_w.website_status);
-                                                }
-                                            });
-                                        }
-                                        MetaTraderUI.enableButton(action, response);
-                                        _context2.next = 20;
+                    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+                        while (1) {
+                            switch (_context3.prev = _context3.next) {
+                                case 0:
+                                    if (is_ok) {
+                                        _context3.next = 3;
                                         break;
+                                    }
 
-                                    case 7:
-                                        _context2.next = 9;
-                                        return BinarySocket.send({ get_account_status: 1 });
+                                    MetaTraderUI.enableButton(action);
+                                    return _context3.abrupt('return');
 
-                                    case 9:
-                                        if (!(getAccountsInfo(acc_type) && getAccountsInfo(acc_type).info)) {
-                                            _context2.next = 17;
-                                            break;
-                                        }
+                                case 3:
+                                    if (!(action === 'verify_password_reset_token')) {
+                                        _context3.next = 7;
+                                        break;
+                                    }
 
-                                        parent_action = /password/.test(action) ? 'manage_password' : 'cashier';
+                                    MetaTraderUI.setToken($('#txt_verification_code').val());
+                                    if (typeof actions_info[action].onSuccess === 'function') {
+                                        actions_info[action].onSuccess({}, MetaTraderUI.$form());
+                                    }
+                                    return _context3.abrupt('return');
 
-                                        if (!(parent_action === 'cashier')) {
-                                            _context2.next = 14;
-                                            break;
-                                        }
+                                case 7:
+                                    req = makeRequestObject(acc_type, action);
 
-                                        _context2.next = 14;
-                                        return BinarySocket.send({ get_limits: 1 });
+                                    if (!(action === 'new_account' && MetaTraderUI.shouldSetTradingPassword())) {
+                                        _context3.next = 20;
+                                        break;
+                                    }
 
-                                    case 14:
-                                        MetaTraderUI.loadAction(parent_action);
-                                        MetaTraderUI.enableButton(action, response);
-                                        MetaTraderUI.refreshAction();
+                                    _context3.next = 11;
+                                    return BinarySocket.send({ mt5_login_list: 1 });
 
-                                    case 17:
-                                        if (typeof actions_info[action].success_msg === 'function') {
-                                            success_msg = actions_info[action].success_msg(response, acc_type);
+                                case 11:
+                                    _ref3 = _context3.sent;
+                                    mt5_login_list = _ref3.mt5_login_list;
+                                    has_mt5_account = mt5_login_list.length > 0;
 
-                                            if (actions_info[action].success_msg_selector) {
-                                                MetaTraderUI.displayMessage(actions_info[action].success_msg_selector, success_msg, 1);
-                                            } else {
-                                                MetaTraderUI.displayMainMessage(success_msg);
-                                            }
-                                            MetaTraderUI.enableButton(action, response);
-                                        }
-                                        if (typeof actions_info[action].onSuccess === 'function') {
-                                            actions_info[action].onSuccess(response, MetaTraderUI.$form());
-                                        }
-                                        BinarySocket.send({ mt5_login_list: 1 }).then(function (response_login_list) {
-                                            MetaTraderUI.refreshAction();
-                                            allAccountsResponseHandler(response_login_list);
+                                    if (!(has_mt5_account && !MetaTraderUI.getTradingPasswordConfirmVisibility())) {
+                                        _context3.next = 18;
+                                        break;
+                                    }
 
-                                            var account_type = acc_type;
-                                            if (action === 'new_account' && !/\d$/.test(account_type) && !getAccountsInfo(account_type)) {
-                                                var server = $('#frm_new_account').find('#ddl_trade_server input[checked]').val();
-                                                if (server) {
-                                                    account_type += '_' + server;
+                                    MetaTraderUI.setTradingPasswordConfirmVisibility(1);
+                                    MetaTraderUI.enableButton(action);
+                                    return _context3.abrupt('return');
 
-                                                    if (!getAccountsInfo(account_type)) {
-                                                        account_type = acc_type;
+                                case 18:
+                                    _context3.next = 20;
+                                    return BinarySocket.send({
+                                        trading_platform_password_change: 1,
+                                        new_password: req.mainPassword,
+                                        platform: 'mt5'
+                                    });
+
+                                case 20:
+                                    BinarySocket.send(req).then(function () {
+                                        var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(response) {
+                                            var parent_action, success_msg;
+                                            return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                                                while (1) {
+                                                    switch (_context2.prev = _context2.next) {
+                                                        case 0:
+                                                            if (!response.error) {
+                                                                _context2.next = 7;
+                                                                break;
+                                                            }
+
+                                                            MetaTraderUI.displayFormMessage(response.error.message, action);
+                                                            if (typeof actions_info[action].onError === 'function') {
+                                                                actions_info[action].onError(response, MetaTraderUI.$form());
+                                                            }
+                                                            if (/^MT5(Deposit|Withdrawal)Error$/.test(response.error.code)) {
+                                                                // update limits if outdated due to exchange rates changing for currency
+                                                                BinarySocket.send({ website_status: 1 }).then(function (response_w) {
+                                                                    if (response_w.website_status) {
+                                                                        setCurrencies(response_w.website_status);
+                                                                    }
+                                                                });
+                                                            }
+                                                            MetaTraderUI.enableButton(action, response);
+                                                            _context2.next = 20;
+                                                            break;
+
+                                                        case 7:
+                                                            _context2.next = 9;
+                                                            return BinarySocket.send({ get_account_status: 1 });
+
+                                                        case 9:
+                                                            if (!(getAccountsInfo(acc_type) && getAccountsInfo(acc_type).info)) {
+                                                                _context2.next = 17;
+                                                                break;
+                                                            }
+
+                                                            parent_action = /password/.test(action) ? 'manage_password' : 'cashier';
+
+                                                            if (!(parent_action === 'cashier')) {
+                                                                _context2.next = 14;
+                                                                break;
+                                                            }
+
+                                                            _context2.next = 14;
+                                                            return BinarySocket.send({ get_limits: 1 });
+
+                                                        case 14:
+                                                            MetaTraderUI.loadAction(parent_action);
+                                                            MetaTraderUI.enableButton(action, response);
+                                                            MetaTraderUI.refreshAction();
+
+                                                        case 17:
+                                                            if (typeof actions_info[action].success_msg === 'function') {
+                                                                success_msg = actions_info[action].success_msg(response, acc_type);
+
+                                                                if (actions_info[action].success_msg_selector) {
+                                                                    MetaTraderUI.displayMessage(actions_info[action].success_msg_selector, success_msg, 1);
+                                                                } else {
+                                                                    MetaTraderUI.displayMainMessage(success_msg);
+                                                                }
+                                                                MetaTraderUI.enableButton(action, response);
+                                                            }
+                                                            if (typeof actions_info[action].onSuccess === 'function') {
+                                                                actions_info[action].onSuccess(response, MetaTraderUI.$form());
+                                                            }
+                                                            BinarySocket.send({ mt5_login_list: 1 }).then(function (response_login_list) {
+                                                                MetaTraderUI.refreshAction();
+                                                                allAccountsResponseHandler(response_login_list);
+
+                                                                var account_type = acc_type;
+                                                                if (action === 'new_account' && !/\d$/.test(account_type) && !getAccountsInfo(account_type)) {
+                                                                    var server = $('#frm_new_account').find('#ddl_trade_server input[checked]').val();
+                                                                    if (server) {
+                                                                        account_type += '_' + server;
+
+                                                                        if (!getAccountsInfo(account_type)) {
+                                                                            account_type = acc_type;
+                                                                        }
+                                                                    }
+                                                                }
+
+                                                                MetaTraderUI.setAccountType(account_type, true);
+                                                                MetaTraderUI.loadAction(null, account_type);
+                                                            });
+
+                                                        case 20:
+                                                        case 'end':
+                                                            return _context2.stop();
                                                     }
                                                 }
-                                            }
+                                            }, _callee2, undefined);
+                                        }));
 
-                                            MetaTraderUI.setAccountType(account_type, true);
-                                            MetaTraderUI.loadAction(null, account_type);
-                                        });
+                                        return function (_x3) {
+                                            return _ref4.apply(this, arguments);
+                                        };
+                                    }());
 
-                                    case 20:
-                                    case 'end':
-                                        return _context2.stop();
-                                }
+                                case 21:
+                                case 'end':
+                                    return _context3.stop();
                             }
-                        }, _callee2, undefined);
-                    }));
+                        }
+                    }, _callee3, undefined);
+                }));
 
-                    return function (_x2) {
-                        return _ref2.apply(this, arguments);
-                    };
-                }());
-            });
+                return function (_x2) {
+                    return _ref2.apply(this, arguments);
+                };
+            }());
         }
     };
 
@@ -35175,11 +35122,11 @@ var MetaTrader = function () {
     };
 
     var metatraderMenuItemVisibility = function metatraderMenuItemVisibility() {
-        BinarySocket.wait('landing_company', 'get_account_status').then(_asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+        BinarySocket.wait('landing_company', 'get_account_status').then(_asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
             var mt_visibility;
-            return regeneratorRuntime.wrap(function _callee3$(_context3) {
+            return regeneratorRuntime.wrap(function _callee4$(_context4) {
                 while (1) {
-                    switch (_context3.prev = _context3.next) {
+                    switch (_context4.prev = _context4.next) {
                         case 0:
                             if (isEligible()) {
                                 mt_visibility = document.getElementsByClassName('mt_visibility');
@@ -35191,10 +35138,10 @@ var MetaTrader = function () {
 
                         case 1:
                         case 'end':
-                            return _context3.stop();
+                            return _context4.stop();
                     }
                 }
-            }, _callee3, undefined);
+            }, _callee4, undefined);
         })));
     };
 
@@ -35254,7 +35201,6 @@ var MetaTraderUI = function () {
         $templates = void 0,
         _$form = void 0,
         $main_msg = void 0,
-        mt5_login_list = void 0,
         validations = void 0,
         submit = void 0,
         topup_demo = void 0,
@@ -35265,6 +35211,8 @@ var MetaTraderUI = function () {
     var actions_info = MetaTraderConfig.actions_info;
     var mt5_url = 'https://trade.mql5.com/trade';
     var getAccountsInfo = MetaTraderConfig.getAccountsInfo;
+
+    var is_trading_password_confirmed = false;
 
     var disabled_signup_types = {
         'real': false,
@@ -35288,10 +35236,6 @@ var MetaTraderUI = function () {
         $templates = $container.find('#templates').remove();
         $main_msg = $container.find('#main_msg');
         $container.find('[class*="act_"]').on('click', populateForm);
-
-        BinarySocket.wait('mt5_login_list').then(function () {
-            mt5_login_list = State.getResponse('mt5_login_list');
-        });
 
         MetaTraderConfig.setMessages($templates.find('#messages'));
 
@@ -35369,6 +35313,53 @@ var MetaTraderUI = function () {
         }
 
         return num_servers;
+    };
+
+    var resetMT5TradingPassword = function resetMT5TradingPassword() {
+        return BinarySocket.send({
+            verify_email: Client.get('email'),
+            type: 'trading_platform_mt5_password_reset'
+        });
+    };
+
+    var populatePasswordManager = function populatePasswordManager() {
+        var STEPS = {
+            PASSWORD_INSERT: 1,
+            PASSWORD_CONFIRM: 2
+        };
+        var $mng_passwd = $container.find('#frm_manage_password');
+        var $step_1 = $mng_passwd.find('.step-1');
+        var $step_2 = $mng_passwd.find('.step-2');
+        var $button = $mng_passwd.find('#password_change_button');
+        var $confirm_button = $mng_passwd.find('#password_change_confirm_buttons .btn_ok');
+        var $cancel_button = $mng_passwd.find('#password_change_confirm_buttons .btn_cancel');
+        var setStep = function setStep(step) {
+            switch (step) {
+                case STEPS.PASSWORD_INSERT:
+                    $step_1.setVisibility(1);
+                    $step_2.setVisibility(0);
+                    break;
+                case STEPS.PASSWORD_CONFIRM:
+                    $step_1.setVisibility(0);
+                    $step_2.setVisibility(1);
+                    break;
+                default:
+                    $step_1.setVisibility(1);
+                    $step_2.setVisibility(0);
+            }
+        };
+        $button.off('click').on('click', function () {
+            setStep(STEPS.PASSWORD_CONFIRM);
+        });
+        $confirm_button.off('click').on('click', function () {
+            resetMT5TradingPassword().then(function () {
+                showTradingPasswordResetAlertPopup();
+                setStep(STEPS.PASSWORD_INSERT);
+            });
+        });
+        $cancel_button.off('click').on('click', function () {
+            setStep(STEPS.PASSWORD_INSERT);
+        });
     };
 
     var populateAccountList = function populateAccountList() {
@@ -35461,6 +35452,24 @@ var MetaTraderUI = function () {
         button_link_el.children('span').addClass('disabled');
     };
 
+    var getTradingPasswordConfirmVisibility = function getTradingPasswordConfirmVisibility() {
+        return is_trading_password_confirmed;
+    };
+
+    var setTradingPasswordConfirmVisibility = function setTradingPasswordConfirmVisibility() {
+        var visibility = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+        _$form.find('#new_user_cancel_button').setVisibility(visibility ? 0 : 1);
+        _$form.find('#new_user_back_button').setVisibility(visibility);
+        _$form.find('#trading_password_new_user_confirm').setVisibility(visibility);
+        _$form.find('#trading_password_change_notice').setVisibility(visibility);
+        _$form.find('#new_user_btn_submit_new_account_confirm').setVisibility(visibility);
+        _$form.find('#trading_password_new_user').setVisibility(!shouldSetTradingPassword() || visibility ? 0 : 1);
+        _$form.find('#new_user_btn_submit_new_account').setVisibility(visibility ? 0 : 1);
+        _$form.find('#trading_password_input').setVisibility(visibility ? 0 : 1);
+        is_trading_password_confirmed = !!visibility;
+    };
+
     var updateListItem = function updateListItem(acc_type) {
         var $acc_item = $list.find('[value="' + acc_type + '"]');
         $acc_item.find('.mt-type').text(getAccountsInfo(acc_type).short_title);
@@ -35528,6 +35537,7 @@ var MetaTraderUI = function () {
                 } else {
                     displayStep(3);
                 }
+                displayAccountDescription('real_gaming_financial');
 
                 $.scrollTo($container.find('.acc-actions'), 300, { offset: -10 });
             });
@@ -35668,7 +35678,7 @@ var MetaTraderUI = function () {
             }, _callee, undefined);
         }));
 
-        return function setCurrentAccount(_x2) {
+        return function setCurrentAccount(_x3) {
             return _ref.apply(this, arguments);
         };
     }();
@@ -35722,11 +35732,7 @@ var MetaTraderUI = function () {
             $action.find('#frm_action').html(_$form).setVisibility(1).end().setVisibility(1);
 
             if (action === 'manage_password') {
-                if (shouldSetTradingPassword()) {
-                    _$form.find('#new_client_message').setVisibility(1);
-                } else {
-                    _$form.find('#existing_client_message').setVisibility(1);
-                }
+                populatePasswordManager();
                 _$form.find('button#btn_submit_password_change[type="submit"]').append(accounts_info[acc_type].info.display_login ? ' ' + localize('for account [_1]', accounts_info[acc_type].info.display_login) : '');
                 if (!token) {
                     _$form.find('#frm_verify_password_reset').setVisibility(1);
@@ -35891,7 +35897,7 @@ var MetaTraderUI = function () {
         var _State$getResponse = State.getResponse('get_account_status'),
             status = _State$getResponse.status;
 
-        return Array.isArray(status) && status.includes('trading_password_required');
+        return Array.isArray(status) && status.includes('mt5_password_not_set');
     };
 
     var displayStep = function displayStep(step) {
@@ -35899,7 +35905,6 @@ var MetaTraderUI = function () {
         var is_demo = /demo/.test(new_account_type);
         var should_set_trading_password = shouldSetTradingPassword();
         var is_synthetic = /gaming/.test(new_account_type);
-        var has_mt5_account = mt5_login_list.length > 0;
 
         _$form.find('#msg_form').remove();
         _$form.find('#mv_new_account div[id^="view_"]').setVisibility(0);
@@ -35909,14 +35914,8 @@ var MetaTraderUI = function () {
         // Show proper notice msg based on api flag
         if (should_set_trading_password) {
             _$form.find('#view_3').find('#trading_password_new_user').setVisibility(1);
-            if (has_mt5_account) {
-                _$form.find('#trading_password_input').setVisibility(0);
-                _$form.find('#has_mt5_new_user_btn_submit_new_account').setVisibility(1);
-            } else {
-                _$form.find('#new_user_btn_submit_new_account').setVisibility(1);
-            }
         } else {
-            _$form.find('#view_3').find('#trading_password_existing_user').setVisibility(1);
+            _$form.find('#view_3').find('#trading_password_existing_user').html(localize('Enter your MT5 password to add a [_1] MT5 [_2] account.', [is_demo ? localize('demo') : localize('real'), is_synthetic ? localize('Synthetic') : localize('Financial')])).setVisibility(1);
         }
 
         _$form.find('.' + (is_demo ? 'real' : 'demo') + '-only').setVisibility(0);
@@ -35950,13 +35949,13 @@ var MetaTraderUI = function () {
             $('<p />', { id: 'msg_form', class: 'center-text gr-padding-10 error-msg no-margin invisible' }).prependTo($view_3_button_container);
             $view_3_button_container.setVisibility(1);
             $view_3_button_container.find('#btn_forgot_trading_password').on('click', function () {
-                return displayStep(4);
+                resetMT5TradingPassword().then(function () {
+                    showTradingPasswordResetAlertPopup();
+                    loadAction('manage_password');
+                });
             });
         } else if (step === 4) {
-            BinarySocket.send({
-                verify_email: Client.get('email'),
-                type: 'trading_platform_password_reset'
-            });
+            resetMT5TradingPassword();
         } else if (step !== 1) {
             displayStep(1);
         }
@@ -35978,6 +35977,7 @@ var MetaTraderUI = function () {
         // set active tab
         if (is_new_account) {
             $container.find('[class~=act_' + action + ']').addClass('selected');
+            setTradingPasswordConfirmVisibility(0);
         } else {
             $detail.setVisibility(1);
             $target.addClass('selected');
@@ -36045,7 +36045,7 @@ var MetaTraderUI = function () {
                 $(e.target).not(':input[disabled]').attr('checked', 'checked');
             }
 
-            var new_user_submit_button = _$form.find(mt5_login_list.length > 0 ? '#has_mt5_new_user_btn_submit_new_account' : '#new_user_btn_submit_new_account');
+            var new_user_submit_button = _$form.find('#new_user_btn_submit_new_account');
             var existing_user_submit_button = _$form.find('#existing_user_btn_submit_new_account');
 
             // Disable/enable submit button based on whether any of the checkboxes is checked.
@@ -36065,8 +36065,14 @@ var MetaTraderUI = function () {
             }
             displayStep(2);
         });
+        _$form.find('#view_3 .btn-back-password').click(function () {
+            setTradingPasswordConfirmVisibility(0);
+            enableButton('new_account');
+        });
         _$form.find('#view_2 .btn-back').click(function () {
             displayStep(1);
+            var $elem = $container.find('#rbtn_gaming_financial.selected');
+            displayAccountDescription($elem.length > 0 ? 'real_gaming_financial' : undefined);
         });
 
         // Account type selection
@@ -36248,8 +36254,8 @@ var MetaTraderUI = function () {
         var button_selector = 'button';
         if (action === 'new_account') {
             if (shouldSetTradingPassword()) {
-                if (mt5_login_list.length > 0) {
-                    button_selector = '#has_mt5_new_user_btn_submit_new_account';
+                if (getTradingPasswordConfirmVisibility()) {
+                    button_selector = '#new_user_btn_submit_new_account_confirm';
                 } else {
                     button_selector = '#new_user_btn_submit_new_account';
                 }
@@ -36280,12 +36286,14 @@ var MetaTraderUI = function () {
             // after submit is done, reset token value
             resetManagePasswordTab(action, response);
         }
-        if (/new_account/.test(action)) {
+        if (/new_account/.test(action) && !getTradingPasswordConfirmVisibility()) {
             resetNewAccountForm(response);
         }
     };
 
-    var resetNewAccountForm = function resetNewAccountForm(response) {
+    var resetNewAccountForm = function resetNewAccountForm() {
+        var response = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
         var should_reset_view = ['#view_3-buttons_reset_password', '#trading_password_reset_required'];
         var normal_view = ['#trading_password_existing_user', '#view_3-buttons_existing_user', '#trading_password_input'];
         var $hint = $('#trading_password_existing_user_validation_error');
@@ -36442,6 +36450,16 @@ var MetaTraderUI = function () {
         });
     };
 
+    var showTradingPasswordResetAlertPopup = function showTradingPasswordResetAlertPopup() {
+
+        Dialog.alert({
+            id: 'password-change-email-popup',
+            localized_title: localize('We’ve sent you an email'),
+            localized_message: localize('Please click on the link in the email to change your MT5 password.'),
+            ok_text: localize('OK')
+        });
+    };
+
     return {
         init: init,
         setAccountType: setAccountType,
@@ -36459,7 +36477,10 @@ var MetaTraderUI = function () {
         enableButton: enableButton,
         refreshAction: refreshAction,
         setTopupLoading: setTopupLoading,
+        getTradingPasswordConfirmVisibility: getTradingPasswordConfirmVisibility,
+        setTradingPasswordConfirmVisibility: setTradingPasswordConfirmVisibility,
         showNewAccountConfirmationPopup: showNewAccountConfirmationPopup,
+        shouldSetTradingPassword: shouldSetTradingPassword,
 
         $form: function $form() {
             return _$form;
@@ -37553,8 +37574,8 @@ var ResetPassword = function () {
         } else {
             Dialog.alert({
                 id: 'change_password_success_dialog',
-                localized_message: localize('You have a new binary password.'),
-                localized_title: localize('Binary password'),
+                localized_message: localize('You have a new Binary password to log in to Binary.com.'),
+                localized_title: localize('Success'),
                 ok_text: localize('Done'),
                 onConfirm: function onConfirm() {
                     return Login.redirectToLogin(true);
@@ -38182,11 +38203,11 @@ var TradingResetPassword = function () {
         } else {
             Dialog.alert({
                 id: 'success_reset_trading_pw_dialog',
-                localized_message: localize('You have a new trading password. Use this to log in to MetaTrader 5.'),
-                localized_title: localize('Trading password'),
+                localized_message: localize('You have a new MT5 password to log in to your MT5 accounts on the web and mobile apps.'),
+                localized_title: localize('Success'),
                 ok_text: localize('Done'),
                 onConfirm: function onConfirm() {
-                    BinaryPjax.load(Url.urlFor('trading'));
+                    BinaryPjax.load(Url.urlFor('user/metatrader'));
                 }
             });
         }
@@ -38195,7 +38216,7 @@ var TradingResetPassword = function () {
     var onLoad = function onLoad() {
         var form_id = '#frm_trading_reset_password';
 
-        FormManager.init(form_id, [{ selector: '#have_real_account', validations: ['req'], exclude_request: 1 }, { selector: '#new_password', validations: ['req', 'password'] }, { request_field: 'trading_platform_password_reset', value: 1 }], true);
+        FormManager.init(form_id, [{ selector: '#have_real_account', validations: ['req'], exclude_request: 1 }, { selector: '#new_password', validations: ['req', 'password'] }, { request_field: 'trading_platform_password_reset', value: 1 }, { request_field: 'platform', value: 'mt5' }], true);
 
         FormManager.handleSubmit({
             form_selector: form_id,
