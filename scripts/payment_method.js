@@ -17,8 +17,9 @@ const output_path = path.join(
 
 const column_filters = {
     currencies: {
-        filter: 'multipleEntries',
-        type  : 'custom',
+        type     : 'double_array',
+        delimeter: ',',
+        textcase : 'uppercase',
     },
     countries: {
         filter: 'includeExclude',
@@ -34,21 +35,11 @@ const column_filters = {
 const replaceAll = (string, search, replacement) =>
     string.split(search).join(replacement);
 
-const cleanStr = (str) => replaceAll(str.toLowerCase(), ' ', '');
-
 const cleanArray = (arr) => arr.map((a) => a.trim());
 
 const filterArray = (arr) => arr.filter((e) => e);
 
 const escapeStr = (str) => replaceAll(str.toLowerCase(), ' ', '_');
-
-const sentencizeStr = (str, delimeter) => str.split(delimeter).join(' ');
-
-const ucWord = (str) =>
-    str
-        .split(' ')
-        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-        .join('');
 
 const caseArray = (arr, c) => {
     let array_result = [];
@@ -69,28 +60,6 @@ const caseArray = (arr, c) => {
 };
 
 const filterFunctions = {
-    descriptionMinMax: (value) => {
-        const data = value.split('|');
-
-        let description, min, max;
-
-        if (data.length) {
-            description = data[0] ? data[0] : '';
-
-            const min_max_parts = data[1] ? data[1].split('-') : [];
-
-            if (min_max_parts.length) {
-                min = cleanStr(replaceAll(min_max_parts[0], 'min', ''));
-                max = cleanStr(replaceAll(min_max_parts[1], 'max', ''));
-            }
-        }
-
-        return {
-            description,
-            min,
-            max,
-        };
-    },
     includeExclude: (value) => {
         const items = cleanArray(value.split(','));
 
@@ -109,37 +78,113 @@ const filterFunctions = {
 
         return content;
     },
-    multipleEntries: (value) => {
-        const items = cleanArray(value.split('|'));
+    multipleEntries: (data) => {
+        const keys = {};
+        const multi_entries = [
+            {
+                name     : 'min_deposit',
+                type     : 'string',
+                delimeter: '|',
+            },
+            {
+                name     : 'max_deposit',
+                type     : 'string',
+                delimeter: '|',
+            },
+            {
+                name     : 'min_withdrawal',
+                type     : 'string',
+                delimeter: '|',
+            },
+            {
+                name     : 'max_withdrawal',
+                type     : 'string',
+                delimeter: '|',
+            },
+            {
+                name: 'currencies',
+                type: 'array',
+            },
+        ];
 
-        const final_items = [];
+        const filtered_keys = [];
 
-        items.map((e) => {
-            const data = filterArray(cleanArray(e.split(',')));
-            final_items.push(data);
+        data.map((d, index) => {
+            const { key } = d;
+
+            if (!keys[key]) {
+                keys[key] = index;
+            } else {
+                const parent_index = keys[key];
+                const parent = data[parent_index];
+
+                multi_entries.forEach((entry) => {
+                    const { name, type, delimeter } = entry;
+
+                    const added_value = d[name];
+                    const current_value = parent[name];
+
+                    if (added_value !== '') {
+                        let final_data = null;
+
+                        if (type === 'array') {
+                            added_value.map((a) => {
+                                current_value.push(a);
+                            });
+
+                            final_data = current_value;
+                        } else {
+                            const new_data = current_value.toString().split(delimeter);
+
+                            new_data.push(added_value);
+
+                            final_data = new_data.join(delimeter);
+                        }
+                        data[parent_index][name] = final_data;
+                    }
+                });
+
+                filtered_keys.push(index);
+            }
         });
 
-        return final_items;
+        filtered_keys.forEach((k) => {
+            delete data[k];
+        });
+
+        return data.filter((e) => e);
     },
-    flatten: (data) => data
-        .map((d) => {
-            const { key, platform, reference } = d;
-            const file_name = escapeStr(key);
+    flatten: (data) => {
+        const excludes = ['link_deriv', 'platform'];
 
-            if (
-                platform.toLowerCase().includes('binary') ||
-          platform.trim() === ''
-            ) {
-                return {
-                    ...d,
-                    logo     : ucWord(sentencizeStr(key, '-')),
-                    reference: reference === 'yes' ? file_name : '',
-                };
-            }
+        return filterFunctions.multipleEntries(data
+            .map((d) => {
+                const { key, platform, reference } = d;
+                const file_name = escapeStr(key);
 
-            return false;
-        })
-        .filter((e) => e),
+                const details = {};
+                // Exclude unnecessary properties
+                Object.keys(d).forEach((dk) => {
+                    if (!excludes.includes(dk)) {
+                        details[dk] = d[dk];
+                    }
+                });
+
+                if (
+                    platform.toLowerCase().includes('binary') ||
+                platform.trim() === ''
+                ) {
+                    return {
+                        ...details,
+                        logo     : replaceAll(key,'-','_'),
+                        reference: reference === 'yes' ? file_name : '',
+                    };
+                }
+
+                return false;
+            })
+            .filter((e) => e));
+    },
 };
 
 fs.createReadStream(source_path)
@@ -171,6 +216,14 @@ fs.createReadStream(source_path)
                                 filterArray(cleanArray(value.split(delimeter))),
                                 textcase
                             );
+                            break;
+                        case 'double_array':
+                            final_value = [
+                                caseArray(
+                                    filterArray(cleanArray(value.split(delimeter))),
+                                    textcase,
+                                ),
+                            ];
                             break;
                         case 'custom':
                             final_value = filterFunctions[filter](value);
