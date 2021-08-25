@@ -78,6 +78,17 @@ const filterFunctions = {
 
         return content;
     },
+    sanitize: (data) => {
+        // Handle data anomalies
+        const { countries,key } = data;
+
+        const { included,excluded } = countries;
+
+        if (included.length && excluded.length){
+            throw new Error(`Invalid data for payment method (${key}). Can't have both included and excluded countries.`);
+        }
+       
+    },
     multipleEntries: (data) => {
         const keys = {};
         const multi_entries = [
@@ -159,6 +170,8 @@ const filterFunctions = {
 
         return filterFunctions.multipleEntries(data
             .map((d) => {
+                filterFunctions.sanitize(d);
+
                 const { key, platform, reference } = d;
                 const file_name = escapeStr(key);
 
