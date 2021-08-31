@@ -1991,7 +1991,6 @@ body #not_authenticated_financial ul.checked > li {
       width: 100%; } }
 
 .welcome-content-box {
-  max-height: 86px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -2003,19 +2002,27 @@ body #not_authenticated_financial ul.checked > li {
           flex-direction: row;
   border-radius: 9px;
   margin-top: 10px; }
+  .welcome-content-box p {
+    font-size: 16px; }
   .welcome-content-box-desc {
     overflow: hidden;
     text-align: left;
-    margin-left: 15px;
+    margin-left: 7px;
     width: 80%;
     font-weight: 500; }
     @media only screen and (max-width: 576px) {
       .welcome-content-box-desc {
+        width: 72%;
+        word-wrap: break-word;
+        margin-left: 8px; }
+        .welcome-content-box-desc p {
+          font-size: 13px; } }
+    @media only screen and (max-width: 390px) {
+      .welcome-content-box-desc {
         font-size: 13px;
-        margin-top: 0.6rem;
         width: 70%;
         word-wrap: break-word;
-        margin-left: 8px; } }
+        margin-left: 5px; } }
     .welcome-content-box-desc p {
       margin: 0.4em 0;
       line-height: 1.2em; }
@@ -2029,11 +2036,13 @@ body #not_authenticated_financial ul.checked > li {
       .welcome-content-box-sub-options {
         font-size: xx-small; } }
     .welcome-content-box-sub-options span {
-      padding: 0 0.5rem;
+      padding: 0 0.2rem;
       border-left: 0.5px solid #999999; }
       @media only screen and (max-width: 576px) {
         .welcome-content-box-sub-options span {
           padding: 0 0.2rem; } }
+  .welcome-content-box-icon {
+    height: 95px; }
   .welcome-content-box-arrow {
     width: 5%;
     position: relative; }

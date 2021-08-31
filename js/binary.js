@@ -309,6 +309,9 @@ var ClientBase = function () {
     var set = function set(key, value) {
         var loginid = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : current_loginid;
 
+        if (key === 'preferred_language' && !LocalStore.get('preferred_language')) {
+            LocalStore.set('preferred_language', value);
+        }
         if (key === 'loginid' && value !== current_loginid) {
             LocalStore.set('active_loginid', value);
             current_loginid = value;
@@ -461,6 +464,7 @@ var ClientBase = function () {
         set('landing_company_shortcode', authorize.landing_company_name);
         set('user_id', authorize.user_id);
         set('local_currency_config', local_currency_config);
+        set('preferred_language', authorize.preferred_language);
         updateAccountList(authorize.account_list);
     };
 
@@ -1549,7 +1553,7 @@ var Login = function () {
 
     var loginUrl = function loginUrl() {
         var server_url = localStorage.getItem('config.server_url');
-        var language = getLanguage();
+        var language = getLanguage() || LocalStore.get('preferred_language');
         var signup_device = LocalStore.get('signup_device') || (isMobile() ? 'mobile' : 'desktop');
         var date_first_contact = LocalStore.get('date_first_contact');
         var marketing_queries = '&signup_device=' + signup_device + (date_first_contact ? '&date_first_contact=' + date_first_contact : '');
@@ -3323,7 +3327,7 @@ var Language = function () {
 
     var urlForLanguage = function urlForLanguage(lang) {
         var url = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : window.location.href;
-        return url.replace(new RegExp('/' + getLanguage() + '/', 'i'), '/' + (lang || default_language).trim().toLowerCase() + '/');
+        return url.replace(new RegExp('/' + (languageFromUrl(url) || getLanguage()) + '/', 'i'), '/' + (lang || default_language).trim().toLowerCase() + '/');
     };
 
     var onChangeLanguage = function onChangeLanguage() {
@@ -3335,6 +3339,12 @@ var Language = function () {
                 elementTextContent(getElementById('display_language').getElementsByClassName('language'), e.target.textContent);
                 LocalStore.remove('ws_cache');
                 setCookieLanguage(lang);
+                if (LocalStore.get('active_loginid')) {
+                    var evt = document.createEvent('StorageEvent');
+                    evt.initStorageEvent('storage', false, false, 'preferred_language', LocalStore.get('preferred_language'), lang);
+                    dispatchEvent(evt);
+                    LocalStore.set('preferred_language', lang);
+                }
                 document.location = urlForLanguage(lang);
             });
         }, '', getElementById('select_language'));
@@ -11628,6 +11638,7 @@ var Client = __webpack_require__(/*! ./client */ "./src/javascript/app/base/clie
 var BinarySocket = __webpack_require__(/*! ./socket */ "./src/javascript/app/base/socket.js");
 var GTM = __webpack_require__(/*! ../../_common/base/gtm */ "./src/javascript/_common/base/gtm.js");
 var SocketCache = __webpack_require__(/*! ../../_common/base/socket_cache */ "./src/javascript/_common/base/socket_cache.js");
+var LocalStore = __webpack_require__(/*! ../../_common/storage */ "./src/javascript/_common/storage.js").LocalStore;
 var getElementById = __webpack_require__(/*! ../../_common/common_functions */ "./src/javascript/_common/common_functions.js").getElementById;
 var getLanguage = __webpack_require__(/*! ../../_common/language */ "./src/javascript/_common/language.js").get;
 var urlLang = __webpack_require__(/*! ../../_common/language */ "./src/javascript/_common/language.js").urlLang;
@@ -11635,6 +11646,7 @@ var isStorageSupported = __webpack_require__(/*! ../../_common/storage */ "./src
 var removeCookies = __webpack_require__(/*! ../../_common/storage */ "./src/javascript/_common/storage.js").removeCookies;
 var paramsHash = __webpack_require__(/*! ../../_common/url */ "./src/javascript/_common/url.js").paramsHash;
 var urlFor = __webpack_require__(/*! ../../_common/url */ "./src/javascript/_common/url.js").urlFor;
+var urlForLanguage = __webpack_require__(/*! ../../_common/language */ "./src/javascript/_common/language.js").urlFor;
 var getPropertyValue = __webpack_require__(/*! ../../_common/utility */ "./src/javascript/_common/utility.js").getPropertyValue;
 
 var LoggedInHandler = function () {
@@ -11647,7 +11659,13 @@ var LoggedInHandler = function () {
             var account_list = getPropertyValue(response, ['authorize', 'account_list']);
             if (isStorageSupported(localStorage) && isStorageSupported(sessionStorage) && account_list) {
                 // redirect url
-                redirect_url = sessionStorage.getItem('redirect_url');
+                var preferred_language = response.authorize.preferred_language.toLowerCase();
+                if (!sessionStorage.getItem('redirect_url')) {
+                    redirect_url = urlFor('/', null, preferred_language);
+                } else {
+                    redirect_url = urlForLanguage(preferred_language, sessionStorage.getItem('redirect_url'));
+                }
+                LocalStore.set('preferred_language', preferred_language);
                 sessionStorage.removeItem('redirect_url');
 
                 storeClientAccounts(account_list);
@@ -11949,6 +11967,9 @@ var Page = function () {
                         if (evt.newValue !== evt.oldValue) {
                             reload(true);
                         }
+                        break;
+                    case 'preferred_language':
+                        BinarySocket.send({ set_settings: 1, preferred_language: evt.newValue });
                         break;
                     // no default
                 }
@@ -12353,6 +12374,11 @@ var BinarySocketGeneral = function () {
             case 'DisabledClient':
                 showNoticeMessage(response.error.message);
                 break;
+
+            case 'InvalidToken':
+                Client.sendLogoutRequest(true);
+                break;
+
             // no default
         }
     };
@@ -12658,7 +12684,8 @@ var AccountOpening = function () {
     };
 
     var commonValidations = function commonValidations() {
-        var req = [{ selector: '#salutation', validations: ['req'] }, { selector: '#first_name', validations: ['req', 'letter_symbol', ['length', { min: 2, max: 50 }]] }, { selector: '#last_name', validations: ['req', 'letter_symbol', ['length', { min: 2, max: 50 }]] }, { selector: '#date_of_birth', validations: ['req'] }, { selector: '#address_line_1', validations: ['req', 'address', ['length', { min: 1, max: 70 }]] }, { selector: '#address_line_2', validations: ['address', ['length', { min: 0, max: 70 }]] }, { selector: '#address_city', validations: ['req', 'letter_symbol', ['length', { min: 1, max: 35 }]] }, { selector: '#address_state', validations: $('#address_state').prop('nodeName') === 'SELECT' ? '' : ['letter_symbol', ['length', { min: 0, max: 35 }]] }, { selector: '#address_postcode', validations: [Client.get('residence') === 'gb' || State.getResponse('authorize.upgradeable_landing_companies').some(function (lc) {
+        var residence = Client.get('residence');
+        var req = [{ selector: '#salutation', validations: ['req'] }, { selector: '#first_name', validations: ['req', 'letter_symbol', ['length', { min: 2, max: 50 }]] }, { selector: '#last_name', validations: ['req', 'letter_symbol', ['length', { min: 2, max: 50 }]] }, { selector: '#date_of_birth', validations: ['req'] }, { selector: '#address_line_1', validations: ['req', 'address', ['length', { min: 1, max: 70 }]] }, { selector: '#address_line_2', validations: ['address', ['length', { min: 0, max: 70 }]] }, { selector: '#address_city', validations: ['req', 'letter_symbol', ['length', { min: 1, max: 35 }]] }, { selector: '#address_state', validations: [residence === 'au' ? 'req' : '', $('#address_state').prop('nodeName') === 'SELECT' ? '' : ['letter_symbol', ['length', { min: 0, max: 35 }]]] }, { selector: '#address_postcode', validations: [residence === 'gb' || State.getResponse('authorize.upgradeable_landing_companies').some(function (lc) {
                 return lc === 'iom';
             }) ? 'req' : '', 'postcode', ['length', { min: 0, max: 20 }]] }, { selector: '#phone', validations: ['req', 'phone', ['length', { min: 9, max: 35, value: function value() {
                     return $('#phone').val().replace(/\D/g, '');
@@ -12733,7 +12760,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var isEmptyObject = __webpack_require__(/*! ../../_common/utility */ "./src/javascript/_common/utility.js").isEmptyObject;
-var removeObjProperties = __webpack_require__(/*! ../../_common/utility */ "./src/javascript/_common/utility.js").removeObjProperties;
 
 var submarket_order = {
     forex: 0,
@@ -12910,14 +12936,11 @@ var ActiveSymbols = function () {
     };
 
     // The unavailable underlyings are only offered on deriv.com.
-    var unavailable_underlyings = ['BOOM500', 'BOOM1000', 'CRASH500', 'CRASH1000', 'stpRNG'];
-
     var getAvailableUnderlyings = function getAvailableUnderlyings(markets_list) {
         var markets_list_clone = clone(markets_list);
 
         Object.keys(markets_list_clone).forEach(function (market_key) {
             Object.keys(markets_list_clone[market_key].submarkets).forEach(function (submarket_key) {
-                removeObjProperties(unavailable_underlyings, markets_list_clone[market_key].submarkets[submarket_key].symbols);
                 if (Object.keys(markets_list_clone[market_key].submarkets[submarket_key].symbols).length === 0) {
                     delete markets_list_clone[market_key].submarkets[submarket_key];
                 }
@@ -14817,7 +14840,7 @@ var Validation = function () {
     };
 
     var showError = function showError(field, localized_message) {
-        if (field.$error.html() === localized_message) return;
+        if (field.$error.html() === localized_message && field.$error.is(':visible')) return;
         clearError(field);
         Password.removeCheck(field.selector);
         field.$error.html(localized_message).setVisibility(1);
@@ -14934,13 +14957,15 @@ var Guide = function () {
         opt = {
             script: '', // the script name in scripts
             autoStart: false, // false: start by button click
-            guideBtnID: '#guideBtn',
+            guide_btn_id: '#guideBtn',
             btnText: localize('Guide'), // guide start button's text
             blink_class: 'highlight',
             blink_inDelay: 1000,
             blink_outDelay: 1000,
             blink_interval: 3000, // 0: continous blinking (blink_inDelay + blink_outDelay)
-            blink_count: 0 // 0: infinite
+            blink_count: 0, // 0: infinite
+            contract_list_id: '#contracts_list',
+            close_confirmation_id: '#close_confirmation_container'
         };
         $.extend(true, opt, options);
 
@@ -14948,12 +14973,12 @@ var Guide = function () {
         btn_next = { className: 'button', html: $('<span/>', { text: localize('Next') }) };
         btn_finish = { className: 'button btnFinish', html: $('<span/>', { text: localize('Finish') }) };
 
-        if ($(opt.guideBtnID).length === 0 || opt.script.length === 0) {
+        if ($(opt.guide_btn_id).length === 0 || opt.script.length === 0) {
             return;
         }
 
         if (isDisabled()) {
-            $(opt.guideBtnID).remove();
+            $(opt.guide_btn_id).remove();
             return;
         }
 
@@ -14981,12 +15006,12 @@ var Guide = function () {
      *  generate the button's html
      */
     var makeButton = function makeButton() {
-        if ($(opt.guideBtnID).children().length > 0) {
+        if ($(opt.guide_btn_id).children().length > 0) {
             return;
         }
 
-        $(opt.guideBtnID).addClass('gr-hide-m pulser').append($('<span/>', { class: 'close', text: 'X' })).append($('<strong/>'));
-        $(opt.guideBtnID + ' strong').html('<span></span>' + opt.btnText);
+        $(opt.guide_btn_id).addClass('gr-hide-m pulser').append($('<span/>', { class: 'close', text: 'X' })).append($('<strong/>'));
+        $(opt.guide_btn_id + ' strong').html('<span></span>' + opt.btnText);
 
         setEvents();
     };
@@ -14995,20 +15020,23 @@ var Guide = function () {
      *  both buttons' click event
      */
     var setEvents = function setEvents() {
-        $(opt.guideBtnID + ' strong').click(function () {
+        $(opt.guide_btn_id + ' strong').click(function () {
             var enjoyhint_instance = new EnjoyHint({});
             enjoyhint_instance.setScript(getScript(opt.script));
             enjoyhint_instance.runScript();
+            if ($(opt.contract_list_id).css('display') === 'none') {
+                $(opt.close_confirmation_id).click();
+            }
         });
 
         if (opt.autoStart) {
-            $(opt.guideBtnID).click();
+            $(opt.guide_btn_id).click();
         }
 
         // Hide button
-        $(opt.guideBtnID + ' span.close').click(function () {
+        $(opt.guide_btn_id + ' span.close').click(function () {
             setDisabled();
-            $(opt.guideBtnID).remove();
+            $(opt.guide_btn_id).remove();
         });
     };
 
@@ -18278,23 +18306,37 @@ var TradingTimesUI = function () {
         });
         $date.val(localize('Today'));
         if ($(window).width() < 480) {
-            // Create a label to be friendlier
-            var $label = $('label[for=trading-date]');
-            $label.append($('<span/>', { class: 'ux-date foot-note' }));
+            var $input_group = $('#trading-date-container .input-group');
+            var $date_input = $input_group.find('input');
+
+            $input_group.append($('<span/>', { class: 'ux-date foot-note' }));
+
+            var $date_caption = $('span.ux-date');
+
             if (!$date.val()) {
-                $('span.ux-date').text(localize('Today'));
+                $date_caption.text(localize('Today'));
                 $date.val(isoFormattedDate);
                 $date.attr('value', isoFormattedDate);
             }
             $date.change(function () {
                 var diffInDays = moment().diff(moment($date.val()), 'days', true);
                 if (diffInDays < 0 || diffInDays >= 1) {
-                    $('span.ux-date').text('');
+                    $date_caption.text('').hide();
+                    $date_input.show();
+                    $date_input.css('opacity', 1);
                 } else {
-                    $('span.ux-date').text('Today');
+                    $date_caption.text(localize('Today')).show();
+                    $date_input.css('opacity', 0);
                 }
             });
+
+            $('#trading-date').trigger('change');
+
+            $date_input.click(function () {
+                $date_input.show();
+            });
         }
+
         $date.change(function () {
             if (!CommonFunctions.dateValueChanged(this, 'date')) {
                 return false;
@@ -21636,14 +21678,14 @@ var Contracts = (_temp = _class = function (_React$Component) {
                 _react2.default.createElement(
                     'div',
                     {
-                        className: 'contract_current ' + (contracts_tree.length <= 1 ? 'disabled' : ''),
+                        className: 'contract_current ' + (contracts_tree.length < 1 ? 'disabled' : ''),
                         onClick: this.openDropDown
                     },
                     _react2.default.createElement(
                         'span',
                         { className: 'type' },
                         this.getCurrentType(),
-                        _react2.default.createElement('span', { className: 'arrow_down ' + (contracts_tree.length <= 1 ? 'invisible' : '') })
+                        _react2.default.createElement('span', { className: 'arrow_down ' + (contracts_tree.length < 1 ? 'invisible' : '') })
                     ),
                     _react2.default.createElement(
                         'span',
@@ -21736,7 +21778,7 @@ var Contracts = (_temp = _class = function (_React$Component) {
     };
 
     this.openDropDown = function () {
-        if (_this3.state.contracts_tree.length <= 1) return;
+        if (_this3.state.contracts_tree.length < 1) return;
         _this3.positionDropDown();
         _this3.setState({ open: true });
     };
@@ -23916,12 +23958,6 @@ var _common_functions = __webpack_require__(/*! ../../../_common/common_function
 
 var _localize = __webpack_require__(/*! ../../../_common/localize */ "./src/javascript/_common/localize.js");
 
-var _client = __webpack_require__(/*! ../../base/client */ "./src/javascript/app/base/client.js");
-
-var _client2 = _interopRequireDefault(_client);
-
-var _storage = __webpack_require__(/*! ../../../_common/storage */ "./src/javascript/_common/storage.js");
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -24024,45 +24060,21 @@ var Markets = (_temp = _class = function (_React$Component) {
         _initialiseProps.call(_this);
 
         var market_symbol = _defaults2.default.get('market');
-        var final_markets_arr = void 0,
-            final_market_obj = void 0;
-
         var market_list = _symbols2.default.markets();
         _this.markets = (0, _active_symbols.getAvailableUnderlyings)(market_list);
-
         _this.underlyings = _symbols2.default.getAllSymbols() || {};
         var underlying_symbol = _defaults2.default.get('underlying');
+
         if (!underlying_symbol || !_this.underlyings[underlying_symbol]) {
             var submarket = Object.keys(_this.markets[market_symbol].submarkets).sort(_active_symbols.sortSubmarket)[0];
             underlying_symbol = Object.keys(_this.markets[market_symbol].submarkets[submarket].symbols).sort()[0];
         }
-        var is_not_crypto = function is_not_crypto(symbol) {
-            return !/^(cry|JD)/i.test(symbol);
-        };
-        var is_synthetic = function is_synthetic(symbol) {
-            return (/^(synthetic)/i.test(symbol)
-            );
-        };
-        var is_uk = _storage.State.getResponse('authorize.country') === 'gb';
-        var is_malta = _storage.State.getResponse('landing_company.gaming_company.shortcode') === 'malta';
         var market_arr = Object.entries(_this.markets).sort(function (a, b) {
             return (0, _active_symbols.sortSubmarket)(a[0], b[0]);
         });
-        if ((is_malta || is_uk) && _client2.default.getAccountOfType('virtual')) {
-            final_markets_arr = market_arr.filter(function (market) {
-                return is_synthetic(market);
-            });
-            final_market_obj = Object.fromEntries(final_markets_arr);
-            market_symbol = Object.keys(final_market_obj)[0];
-            var _submarket = Object.keys(final_market_obj[market_symbol].submarkets).sort(_active_symbols.sortSubmarket)[0];
-            underlying_symbol = Object.keys(final_market_obj[market_symbol].submarkets[_submarket].symbols).sort()[0];
-        } else {
-            final_markets_arr = market_arr.filter(function (market) {
-                return is_not_crypto(market);
-            });
-            final_market_obj = Object.fromEntries(final_markets_arr);
-        }
-        _this.markets_all = final_markets_arr.slice();
+        var market_obj = Object.fromEntries(market_arr);
+
+        _this.markets_all = market_arr.slice();
         if (!(market_symbol in _this.markets)) {
             market_symbol = Object.keys(_this.markets).find(function (m) {
                 return _this.markets[m].submarkets[market_symbol];
@@ -24075,13 +24087,13 @@ var Markets = (_temp = _class = function (_React$Component) {
             open: false,
             market: {
                 symbol: market_symbol,
-                name: final_market_obj[market_symbol].name
+                name: market_obj[market_symbol].name
             },
             underlying: {
                 symbol: underlying_symbol,
                 name: _this.underlyings[underlying_symbol]
             },
-            markets: final_markets_arr,
+            markets: market_arr,
             active_market: market_symbol,
             query: '',
             open_dropdown_scroll_id: 0
@@ -26752,7 +26764,12 @@ var TickDisplay = function () {
                                         lang: { thousandsSep: ',' }
                                     });
                                     ChartSettings.setChartOptions(config);
-                                    chart = new Highstock.Chart(ChartSettings.getChartOptions());
+
+                                    try {
+                                        chart = new Highstock.Chart(ChartSettings.getChartOptions());
+                                    } catch (e) {
+                                        // user switched to another page before the chart was loaded
+                                    }
 
                                     var resize_timeout = void 0;
                                     var el_chart_container = CommonFunctions.getElementById(id_render);
@@ -29037,7 +29054,7 @@ var PaymentAgentTransfer = function () {
                     var pa_values = response.paymentagent_list.list.filter(function (a) {
                         return a.paymentagent_loginid === Client.get('loginid');
                     })[0];
-                    init(pa_values, currency, balance);
+                    init(pa_values, currency);
                 });
             } else {
                 setFormVisibility(false);
@@ -29052,7 +29069,7 @@ var PaymentAgentTransfer = function () {
         });
     };
 
-    var init = function init(pa, currency, balance) {
+    var init = function init(pa, currency) {
         var form_id = '#frm_paymentagent_transfer';
         $form_error = $('#form_error');
 
@@ -29062,7 +29079,7 @@ var PaymentAgentTransfer = function () {
 
         common_request_fields = [{ request_field: 'paymentagent_transfer', value: 1 }, { request_field: 'currency', value: currency }];
 
-        FormManager.init(form_id, [{ selector: '#client_id', validations: ['req', ['regular', { regex: /^\w+\d+$/, message: localize('Please enter a valid Login ID.') }]], request_field: 'transfer_to' }, { selector: '#amount', validations: ['req', ['number', { type: 'float', decimals: getDecimalPlaces(currency), min: pa ? pa.min_withdrawal : 10, max: max_withdrawal(balance, pa, 2000), balance: Client.get('balance') }]] }, { selector: '#description', validations: ['general'] }, { request_field: 'dry_run', value: 1 }].concat(common_request_fields));
+        FormManager.init(form_id, [{ selector: '#client_id', validations: ['req', ['regular', { regex: /^\w+\d+$/, message: localize('Please enter a valid Login ID.') }]], request_field: 'transfer_to' }, { selector: '#amount', validations: ['req', ['number', { type: 'float', decimals: getDecimalPlaces(currency), min: pa ? pa.min_withdrawal : 10, max: max_withdrawal(pa, 2000), balance: Client.get('balance') }]] }, { selector: '#description', validations: ['general'] }, { request_field: 'dry_run', value: 1 }].concat(common_request_fields));
 
         FormManager.handleSubmit({
             form_selector: form_id,
@@ -29071,10 +29088,8 @@ var PaymentAgentTransfer = function () {
         });
     };
 
-    var max_withdrawal = function max_withdrawal(balance, pa, fixed_max_withdrawal) {
-        var pa_max_withdrawal = pa ? pa.max_withdrawal : fixed_max_withdrawal;
-
-        return balance < pa_max_withdrawal ? balance : pa_max_withdrawal;
+    var max_withdrawal = function max_withdrawal(pa, fixed_max_withdrawal) {
+        return pa ? pa.max_withdrawal : fixed_max_withdrawal;
     };
 
     var setFormVisibility = function setFormVisibility(is_visible) {
@@ -30383,7 +30398,7 @@ var AccountClosure = function () {
         if (el_suggested_improves.value.length !== 0) {
             reason_string += ',' + el_suggested_improves.value;
         }
-        return reason_string;
+        return reason_string.replace(/(\r\n|\n|\r)/gm, ' ');
     };
 
     return {
@@ -31443,7 +31458,6 @@ var getPropertyValue = __webpack_require__(/*! ../../../../../_common/utility */
 var PersonalDetails = function () {
     var form_id = '#frmPersonalDetails';
     var real_acc_elements = '.RealAcc';
-    var real_acc_auth_elements = '.RealAccAuth';
     var name_fields = ['first_name', 'last_name'];
 
     var is_for_new_account = false;
@@ -31555,6 +31569,29 @@ var PersonalDetails = function () {
         }
     };
 
+    var selectContactCSMessage = function selectContactCSMessage(immutable_fields) {
+        var has_name = /name/.test(immutable_fields.toString());
+        var has_date_of_birth = /date_of_birth/.test(immutable_fields.toString());
+        var has_tax_info = /tax/.test(immutable_fields.toString());
+        if (has_name && has_date_of_birth && has_tax_info) {
+            $('.full-cs-msg').setVisibility(1);
+        } else if (!has_name && !has_date_of_birth && !has_tax_info) {
+            $('.cs-msg-without-name-dob-and-tax-info').setVisibility(1);
+        } else if (!has_name && !has_date_of_birth) {
+            $('.cs-msg-without-name-and-dob').setVisibility(1);
+        } else if (!has_date_of_birth && !has_tax_info) {
+            $('.cs-msg-without-dob-and-tax-info').setVisibility(1);
+        } else if (!has_name && !has_tax_info) {
+            $('.cs-msg-without-name-and-tax-info').setVisibility(1);
+        } else if (!has_name) {
+            $('.cs-msg-without-name').setVisibility(1);
+        } else if (!has_date_of_birth) {
+            $('.cs-msg-without-dob').setVisibility(1);
+        } else if (!has_tax_info) {
+            $('.cs-msg-without-tax-info').setVisibility(1);
+        }
+    };
+
     var getDetailsResponse = function getDetailsResponse(data) {
         var residence_list = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : State.getResponse('residence_list');
 
@@ -31596,7 +31633,7 @@ var PersonalDetails = function () {
             $(real_acc_elements).setVisibility(1);
             showHideTaxMessage();
             if (is_fully_authenticated) {
-                $(real_acc_auth_elements).setVisibility(1);
+                selectContactCSMessage(get_settings.immutable_fields);
             }
         }
 
@@ -33353,6 +33390,7 @@ var urlFor = __webpack_require__(/*! ../../../_common/url */ "./src/javascript/_
 var Accounts = function () {
     var landing_company = void 0;
     var form_id = '#new_accounts';
+    var has_real_account = Client.hasAccountType('real');
 
     var TableHeaders = function () {
         var table_headers = void 0;
@@ -33391,12 +33429,12 @@ var Accounts = function () {
 
             var element_to_show = '#no_new_accounts_wrapper';
             var upgrade_info = Client.getUpgradeInfo();
-            if (upgrade_info.can_upgrade) {
+            if (upgrade_info.can_upgrade && !has_real_account) {
                 populateNewAccounts(upgrade_info);
                 element_to_show = '#new_accounts_wrapper';
             }
 
-            if (upgrade_info.can_open_multi) {
+            if (upgrade_info.can_open_multi || has_real_account && Client.get('is_virtual')) {
                 populateMultiAccount();
             } else if (!can_change_currency) {
                 doneLoading(element_to_show);
@@ -33633,10 +33671,7 @@ var GetCurrency = function () {
 
         var all_loginids = Client.getAllLoginids();
         var other_currencies = [];
-        // console.log(Client.get('landing_company_shortcode'))
         var current_landing_company_shortcode = Client.get('landing_company_shortcode');
-        // console.log(Client.get('loginid'))
-        // console.log(all_loginids)
         all_loginids.forEach(function (loginid) {
             // if it's not current client or under a different landing company, consider the currency
             if (is_different_company) {
@@ -33683,28 +33718,33 @@ var GetCurrency = function () {
     };
 
     var getCurrencies = function getCurrencies(landing_company, all_fiat) {
-        var client_currency = Client.get('currency');
-        var is_crypto = Currency.isCryptocurrency(client_currency);
+        var currencies_to_show = [];
+        var current_client_currency = Client.get('currency');
+        var is_crypto = Currency.isCryptocurrency(current_client_currency);
         var currency_values = getCurrencyValues();
+        var is_virtual = Client.get('is_virtual');
+        var has_real_account = Client.hasAccountType('real');
+        var all_client_accounts = Client.getAllAccountsObject();
+        var all_client_currencies = Object.values(all_client_accounts).map(function (account) {
+            return account.currency;
+        });
 
         var allowed_currencies = Client.getLandingCompanyValue({ real: 1 }, landing_company, 'legal_allowed_currencies');
 
         var available_crypto = currency_values.cryptocurrencies.filter(function (c) {
-            return currency_values.other_currencies.concat(is_crypto ? client_currency : []).indexOf(c) < 0 && allowed_currencies.indexOf(c) > -1;
+            return currency_values.other_currencies.concat(is_crypto ? current_client_currency : all_client_currencies).indexOf(c) < 0 && allowed_currencies.indexOf(c) > -1;
         });
+
         var can_open_crypto = available_crypto.length;
 
-        var currencies_to_show = [];
-
         // only allow client to open more sub accounts if the last currency is not to be reserved for master account
-        if (client_currency && (can_open_crypto || !currency_values.has_fiat) || !client_currency && (available_crypto.length > 1 || can_open_crypto && !currency_values.has_fiat)) {
+        if (current_client_currency && (can_open_crypto || !currency_values.has_fiat) || !current_client_currency && (available_crypto.length > 1 || can_open_crypto && !currency_values.has_fiat)) {
             // if have sub account with fiat currency, or master account is fiat currency, only show cryptocurrencies
             // else show all
-            var is_virtual = Client.get('is_virtual');
 
-            currencies_to_show = !all_fiat && (currency_values.has_fiat || !is_crypto && client_currency && !is_virtual) ? available_crypto : allowed_currencies;
+            currencies_to_show = !all_fiat && (currency_values.has_fiat || !is_crypto && current_client_currency && has_real_account) ? available_crypto : allowed_currencies;
             // remove client's currency and sub account currencies from list of currencies to show
-            var currencies_to_compare = is_virtual ? currency_values.other_currencies : currency_values.other_currencies.concat(client_currency);
+            var currencies_to_compare = is_virtual ? currency_values.other_currencies : currency_values.other_currencies.concat(current_client_currency);
             currencies_to_show = currencies_to_show.filter(function (c) {
                 return currencies_to_compare.indexOf(c) < 0;
             });
@@ -33716,9 +33756,9 @@ var GetCurrency = function () {
     var getAllCurrencies = function getAllCurrencies(landing_company) {
         var allowed_currencies = Client.getLandingCompanyValue({ real: 1 }, landing_company, 'legal_allowed_currencies');
         var currency_values = getCurrencyValues();
-        var client_currency = Client.get('currency');
+        var current_client_currency = Client.get('currency');
         var is_virtual = Client.get('is_virtual');
-        var currencies_to_compare = is_virtual ? currency_values.other_currencies : currency_values.other_currencies.concat(client_currency);
+        var currencies_to_compare = is_virtual ? currency_values.other_currencies : currency_values.other_currencies.concat(current_client_currency);
 
         return allowed_currencies.filter(function (c) {
             return currencies_to_compare.indexOf(c) < 0;
@@ -34834,7 +34874,7 @@ var MetaTrader = function () {
             // further validations before submit (password_check)
             MetaTraderUI.postValidate(acc_type, action).then(function () {
                 var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(is_ok) {
-                    var req, _ref3, mt5_login_list, has_mt5_account;
+                    var req, _ref3, mt5_login_list, has_mt5_account, response;
 
                     return regeneratorRuntime.wrap(function _callee3$(_context3) {
                         while (1) {
@@ -34864,7 +34904,7 @@ var MetaTrader = function () {
                                     req = makeRequestObject(acc_type, action);
 
                                     if (!(action === 'new_account' && MetaTraderUI.shouldSetTradingPassword())) {
-                                        _context3.next = 20;
+                                        _context3.next = 25;
                                         break;
                                     }
 
@@ -34894,6 +34934,18 @@ var MetaTrader = function () {
                                     });
 
                                 case 20:
+                                    response = _context3.sent;
+
+                                    if (!response.error) {
+                                        _context3.next = 25;
+                                        break;
+                                    }
+
+                                    MetaTraderUI.displayFormMessage(response.error.message, action);
+                                    MetaTraderUI.enableButton(action, response);
+                                    return _context3.abrupt('return');
+
+                                case 25:
                                     BinarySocket.send(req).then(function () {
                                         var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(response) {
                                             var parent_action, success_msg;
@@ -34994,7 +35046,7 @@ var MetaTrader = function () {
                                         };
                                     }());
 
-                                case 21:
+                                case 26:
                                 case 'end':
                                     return _context3.stop();
                             }
@@ -37531,6 +37583,7 @@ var getElementById = __webpack_require__(/*! ../../../_common/common_functions *
 var localize = __webpack_require__(/*! ../../../_common/localize */ "./src/javascript/_common/localize.js").localize;
 var State = __webpack_require__(/*! ../../../_common/storage */ "./src/javascript/_common/storage.js").State;
 var toTitleCase = __webpack_require__(/*! ../../../_common/string_util */ "./src/javascript/_common/string_util.js").toTitleCase;
+var Client = __webpack_require__(/*! ../../base/client */ "./src/javascript/app/base/client.js");
 
 var ResetPassword = function () {
     var form_reset_pw_id = void 0,
@@ -37578,7 +37631,7 @@ var ResetPassword = function () {
                 localized_title: localize('Success'),
                 ok_text: localize('Done'),
                 onConfirm: function onConfirm() {
-                    return Login.redirectToLogin(true);
+                    return Client.sendLogoutRequest(true);
                 }
             });
         }
@@ -37785,9 +37838,8 @@ var SetCurrency = function () {
             return _ref.apply(this, arguments);
         };
     }();
-
     var getAvailableCurrencies = function getAvailableCurrencies(landing_company, payout_currencies) {
-        return Client.get('landing_company_shortcode') === 'svg' ? GetCurrency.getCurrencies(landing_company) : payout_currencies;
+        return Client.hasSvgAccount() ? GetCurrency.getCurrencies(landing_company) : payout_currencies;
     };
 
     var getCurrencyChangeOptions = function getCurrencyChangeOptions(landing_company) {
@@ -37808,7 +37860,6 @@ var SetCurrency = function () {
             var $wrapper = $('<div/>', { class: 'gr-2 gr-4-m currency_wrapper', id: c });
             var $image = $('<div/>').append($('<img/>', { src: Url.urlForStatic('images/pages/set_currency/' + c.toLowerCase() + '.svg') }));
             var $name = $('<div/>', { class: 'currency-name' });
-
             if (Currency.isCryptocurrency(c)) {
                 var $display_name = $('<span/>', _extends({
                     text: Currency.getCurrencyName(c) || c

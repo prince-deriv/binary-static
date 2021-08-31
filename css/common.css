@@ -553,14 +553,13 @@ button .barspinner.white {
 #virtual-form .hide-product-checkbox {
   display: none; }
 
-#virtual-form .email-consent-container {
-  display: none; }
-
 .password--field-wrapper {
   position: relative;
   max-width: 220px; }
   .password--field-wrapper input {
     width: 202px; }
+    .password--field-wrapper input::-ms-reveal {
+      display: none; }
   @media screen and (max-width: 480px) {
     .password--field-wrapper {
       margin: 0 auto; }
