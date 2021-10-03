@@ -195,7 +195,7 @@ const filterFunctions = {
             return {
               ...details,
               logo: replaceAll(key, "-", "_"),
-              reference: reference === "yes" ? file_name : "",
+              reference: reference.toLowerCase() === "yes" ? file_name : "",
             };
           }
 
