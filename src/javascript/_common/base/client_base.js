@@ -237,7 +237,7 @@ const ClientBase = (() => {
     // market_type: "financial" | "gaming"
     // sub_account_type: "financial" | "financial_stp" | "swap_free"
     // *
-    const getMT5AccountDisplays = (market_type, sub_account_type, is_demo, landing_company_short,is_eu) => {
+    const getMT5AccountDisplays = (market_type, sub_account_type, is_demo, landing_company_short, is_eu) => {
         // needs to be declared inside because of localize
         // TODO: handle swap_free when ready
 
