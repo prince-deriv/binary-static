@@ -735,7 +735,7 @@ const MetaTraderUI = (() => {
                     'Enter your MT5 password to add a [_1] [_2] account.',
                     [
                         is_demo ? localize('demo') : localize('real'),
-                        is_synthetic ? localize('Synthetic MT5') : mt5_label,
+                        is_synthetic ? localize('MT5 Synthetic') : mt5_label,
                     ]
                 ))
                 .setVisibility(1);
