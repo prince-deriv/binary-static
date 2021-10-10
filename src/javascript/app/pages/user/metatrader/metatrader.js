@@ -131,8 +131,13 @@ const MetaTrader = (() => {
 
                     ['demo', 'real'].forEach((account_type) => {
                         const is_demo = account_type === 'demo';
-                        const display_name =
-                            Client.getMT5AccountDisplays(market_type, sub_account_type, is_demo, landing_company_short,isEuCountry());
+                        const display_name = Client.getMT5AccountDisplays(
+                            market_type,
+                            sub_account_type,
+                            is_demo,
+                            landing_company_short,
+                            isEuCountry()
+                        );
                         const leverage = getLeverage(market_type, sub_account_type, landing_company_short);
 
                         const addAccountsInfo = (trading_server) => {
