@@ -1258,8 +1258,10 @@ const MetaTraderUI = (() => {
             ok_text          : localize('Yes, I\'m sure'),
             cancel_text      : localize('Cancel'),
             localized_title  : localize('Are you sure?'),
-            localized_message: localize(`You will not be able to change your fiat account currency after creating this ${isEuCountry() ? 'CFDs' : ''} account. Are you sure you want to proceed?`),
-            onConfirm        : () => {
+            localized_message: localize('You will not be able to change your fiat account currency after creating this [_1] account. Are you sure you want to proceed?',
+                [isEuCountry() ? 'CFDs' : ''],
+            ),
+            onConfirm: () => {
                 onConfirm();
                 submit(e);
             },
