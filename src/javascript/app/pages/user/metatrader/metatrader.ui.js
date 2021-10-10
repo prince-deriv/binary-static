@@ -13,6 +13,7 @@ const urlForStatic     = require('../../../../_common/url').urlForStatic;
 const getHashValue     = require('../../../../_common/url').getHashValue;
 const getPropertyValue = require('../../../../_common/utility').getPropertyValue;
 const showLoadingImage = require('../../../../_common/utility').showLoadingImage;
+const isEuCountry      = require('../../../common/country_base').isEuCountry;
 
 const MetaTraderUI = (() => {
     let $container,
@@ -1252,12 +1253,14 @@ const MetaTraderUI = (() => {
 
     const showNewAccountConfirmationPopup = (e, onConfirm, onAbort) => {
 
+        const msg = `You will not be able to change your fiat account currency after creating this ${isEuCountry() ? 'CFDs' : ''} account. Are you sure you want to proceed?`;
+
         Dialog.confirm({
             id               : 'create_mt5_popup_container',
             ok_text          : localize('Yes, I\'m sure'),
             cancel_text      : localize('Cancel'),
             localized_title  : localize('Are you sure?'),
-            localized_message: localize('You will not be able to change your fiat account currency after creating this CFDs account. Are you sure you want to proceed?'),
+            localized_message: localize(msg),
             onConfirm        : () => {
                 onConfirm();
                 submit(e);
