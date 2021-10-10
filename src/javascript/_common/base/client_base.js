@@ -242,7 +242,8 @@ const ClientBase = (() => {
         // TODO: handle swap_free when ready
 
         const account_market_type = (market_type === 'synthetic' || market_type === 'gaming') ? 'gaming' : market_type;
-        const mt5_financial = is_eu ? localize('Real CFDs') : localize('Real Financial');
+        const real_financial = is_eu ? localize('Real CFDs') : localize('Real Financial');
+        const demo_financial = is_eu ? localize('Demo CFDs') : localize('Demo Financial');
 
         const obj_display = {
             gaming: {
@@ -254,7 +255,7 @@ const ClientBase = (() => {
             financial: {
                 financial: {
                     short: landing_company_short === 'maltainvest' ? localize('CFDs') : localize('Financial'),
-                    full : is_demo ? localize('Demo CFDs') : mt5_financial,
+                    full : is_demo ? demo_financial : real_financial,
                 },
                 financial_stp: {
                     short: localize('Financial STP'),
