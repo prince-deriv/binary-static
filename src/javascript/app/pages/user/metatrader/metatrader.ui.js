@@ -1259,7 +1259,7 @@ const MetaTraderUI = (() => {
             cancel_text      : localize('Cancel'),
             localized_title  : localize('Are you sure?'),
             localized_message: localize('You will not be able to change your fiat account currency after creating this [_1] account. Are you sure you want to proceed?',
-                [isEuCountry() ? 'CFDs' : ''],
+                [isEuCountry() ? 'CFDs' : 'MT5'],
             ),
             onConfirm: () => {
                 onConfirm();
