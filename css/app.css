@@ -440,6 +440,10 @@ a.previous-wrapper {
     #mt_account_management .fst-container #fst_action #frm_cashier .binary-balance, #mt_account_management .fst-container #fst_action #frm_cashier .mt5-balance {
       font-weight: bold;
       color: #c2c2c2; }
+    #mt_account_management .fst-container #fst_action #frm_cashier #insufficient_funds {
+      text-align: left; }
+      #mt_account_management .fst-container #fst_action #frm_cashier #insufficient_funds .insufficient-funds-error-link {
+        color: #c03; }
     #mt_account_management .fst-container #fst_action #frm_cashier #mt5_remaining_transfers .empty {
       color: #c03; }
     #mt_account_management .fst-container #fst_action #frm_manage_password #token_error {
@@ -452,6 +456,8 @@ a.previous-wrapper {
       width: 100%; }
     #mt_account_management .fst-container #fst_action #frm_manage_password .change-investor-button {
       margin-bottom: 10px; }
+    #mt_account_management .fst-container #fst_action #frm_manage_password .change-investor-password .password--field-wrapper {
+      max-width: 95%; }
     #mt_account_management .fst-container #fst_action #frm_manage_password #existing_client_message .notice-msg {
       padding: 16px; }
     #mt_account_management .fst-container #fst_action .type-group .mt5_type_box {
@@ -551,7 +557,8 @@ a.previous-wrapper {
     padding-left: 24px; }
   #mt_account_management #account_desc .button span {
     padding: 10px 5px;
-    line-height: 18px; }
+    line-height: 18px;
+    width: 95%; }
   #mt_account_management span {
     font-size: 1.15rem; }
 
