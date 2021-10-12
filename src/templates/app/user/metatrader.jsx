@@ -315,9 +315,7 @@ const Metatrader = () => (
                                     <p id='trading_password_reset_required' className='notice-msg center-text invisible'>
                                         {it.L('To many attempts. Please try again in a few minutes')}
                                     </p>
-                                    <p id='trading_password_change_notice' className='error-msg center-text invisible'>
-                                        {it.L('This will change the password to all of your MT5 accounts.')}
-                                    </p>
+                                    <p id='trading_password_change_notice' className='trading_password_change_notice error-msg center-text invisible' />
                                     <div id='trading_password_input' className='center-text'>
                                         <FormRow
                                             className='trading-password'
@@ -435,9 +433,7 @@ const Metatrader = () => (
                                             <h3 className='secondary-color password_change_title'>
                                                 {it.L('Confirm to change your MT5 password')}
                                             </h3>
-                                            <p className='error-msg center-text password_change_warning'>
-                                                {it.L('This will change the password to all of your MT5 accounts.')}
-                                            </p>
+                                            <p className='trading_password_change_notice error-msg center-text password_change_warning' />
                                             <div id='password_change_confirm_buttons'>
                                                 <a className='button button-secondary btn_cancel' href='javascript:;'>
                                                     <span>{it.L('Cancel')}</span>

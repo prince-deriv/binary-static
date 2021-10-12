@@ -176,6 +176,8 @@ const MetaTraderUI = (() => {
         const $confirm_button = $mng_passwd.find('#password_change_confirm_buttons .btn_ok');
         const $cancel_button = $mng_passwd.find('#password_change_confirm_buttons .btn_cancel');
         const $trading_password_info = $mng_passwd.find('#trading_password_info');
+        const $trading_password_change_notice = $mng_passwd.find('.trading_password_change_notice');
+        
         const setStep = (step) => {
             switch (step) {
                 case STEPS.PASSWORD_INSERT:
@@ -208,6 +210,11 @@ const MetaTraderUI = (() => {
             localize('Use MT5 password to sign in to any of your [_1] accounts when using MT5 apps on your mobile or other devices.',
                 isEuCountry() ? 'CFDs' : 'MT5',
             )
+        );
+
+        $trading_password_change_notice.text(
+            localize('This will change the password to all of your [_1] accounts.',
+                isEuCountry() ? 'CFDs' : 'MT5')
         );
       
     };
