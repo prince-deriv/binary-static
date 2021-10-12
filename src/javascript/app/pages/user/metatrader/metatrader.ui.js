@@ -205,16 +205,19 @@ const MetaTraderUI = (() => {
         $cancel_button.off('click').on('click', () => {
             setStep(STEPS.PASSWORD_INSERT);
         });
+
+        const mt5_label =  isEuCountry() ? 'CFDs' : 'MT5';
         
         $trading_password_info.text(
             localize('Use MT5 password to sign in to any of your [_1] accounts when using MT5 apps on your mobile or other devices.',
-                isEuCountry() ? 'CFDs' : 'MT5',
+                mt5_label
             )
         );
 
         $trading_password_change_notice.text(
             localize('This will change the password to all of your [_1] accounts.',
-                isEuCountry() ? 'CFDs' : 'MT5')
+                mt5_label
+            )
         );
       
     };
