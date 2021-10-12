@@ -175,6 +175,7 @@ const MetaTraderUI = (() => {
         const $button = $mng_passwd.find('#password_change_button');
         const $confirm_button = $mng_passwd.find('#password_change_confirm_buttons .btn_ok');
         const $cancel_button = $mng_passwd.find('#password_change_confirm_buttons .btn_cancel');
+        const $trading_password_info = $mng_passwd.find('#trading_password_info');
         const setStep = (step) => {
             switch (step) {
                 case STEPS.PASSWORD_INSERT:
@@ -202,6 +203,13 @@ const MetaTraderUI = (() => {
         $cancel_button.off('click').on('click', () => {
             setStep(STEPS.PASSWORD_INSERT);
         });
+        
+        $trading_password_info.text(
+            localize('Use MT5 password to sign in to any of your [_1] accounts when using MT5 apps on your mobile or other devices.',
+                isEuCountry() ? 'CFDs' : 'MT5',
+            )
+        );
+      
     };
 
     const populateAccountList = () => {
