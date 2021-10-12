@@ -608,7 +608,7 @@ const Metatrader = () => (
                             <li className='authenticate_msg invisible'>{it.L('Please [_1]authenticate your account[_2] before creating an MT5 account.', `<a href="${it.url_for('user/authenticate')}">`, '</a>')}</li>
                         </ul>
                     </div>
-                    <div id='msg_authenticate'>{it.L('To withdraw from MetaTrader 5 Financial Account please [_1]Authenticate[_2] your Binary account.', `<a href="${it.url_for('user/authenticate')}">`, '</a>')}</div>
+                    <div id='msg_authenticate' data-auth-url={it.url_for('user/authenticate')} />
                 </div>
             </div>
         </div>
