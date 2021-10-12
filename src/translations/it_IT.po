@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: binary-static\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-10-10 13:36\n"
+"PO-Revision-Date: 2021-10-12 05:35\n"
 "Last-Translator: \n"
 "Language-Team: Italian\n"
 "MIME-Version: 1.0\n"
@@ -3451,6 +3451,9 @@ msgstr "Crea un nuovo token"
 msgid "Create or Manage Accounts"
 msgstr "Crea o gestisci i conti"
 
+msgid "Create or reset password"
+msgstr ""
+
 msgid "Create strategies against potential risks that might arise due to disruptive innovation"
 msgstr "Creare strategie a protezione da eventuali rischi che potrebbero sorgere in seguito a innovazioni dirompenti"
 
@@ -5487,6 +5490,9 @@ msgstr "Aprire una posizione long e short"
 
 msgid "Go short = sell"
 msgstr "Aprire una posizione short = vendere"
+
+msgid "Go to DTrader"
+msgstr ""
 
 msgid "Go to MT5 download page"
 msgstr "Vai alla pagina di download di MT5"
