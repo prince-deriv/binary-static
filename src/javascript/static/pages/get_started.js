@@ -1,7 +1,7 @@
 const MenuSelector   = require('../../_common/menu_selector');
 const TabSelector    = require('../../_common/tab_selector');
 const isEuCountry    = require('../../app/common/country_base').isEuCountry;
-const BinarySocket  = require('../../app/base/socket');
+const BinarySocket   = require('../../app/base/socket');
 
 module.exports = {
     BinaryOptions: {
@@ -30,7 +30,6 @@ module.exports = {
                 if (isEuCountry()) {
                     const redirect_url = `${location.protocol}//${location.host}${location.pathname}?get_started_tabs=mt5`;
                     window.history.pushState({ path: redirect_url },'',redirect_url);
-                   
                 }
                 TabSelector.onLoad();
             });
