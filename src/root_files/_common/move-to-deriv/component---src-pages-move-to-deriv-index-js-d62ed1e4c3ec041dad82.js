@@ -1,2 +1,0 @@
-(self.webpackChunkderiv_com=self.webpackChunkderiv_com||[]).push([[977],{149:function(e,t,l){"use strict";l.r(t);var n=l(7294),r=l(9089),c=l(5229),u=l(4294),a=l(9595),m=l(3895),i=l(827),E=l(8e3),Z=l(8838);t.default=(0,Z.Wm)()((function(){return n.createElement(E.Z,{type:"binary-to-deriv",margin_top:"0"},n.createElement(r.ZP,null),n.createElement(c.Z,null),n.createElement(u.Z,null),n.createElement(a.Z,null),n.createElement(m.Z,null),n.createElement(i.ZP,null))}))}}]);
-//# sourceMappingURL=component---src-pages-move-to-deriv-index-js-d62ed1e4c3ec041dad82.js.map
