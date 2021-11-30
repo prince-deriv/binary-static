@@ -35,15 +35,15 @@ const country_map = [
 function redirect(request) {
   // Use the cf object to obtain the country of the request
   // more on the cf object: https://developers.cloudflare.com/workers/runtime-apis/request#incomingrequestcfproperties
-  const { country, isEUCountry } = request.cf;
-  const redirect_path = "/move-to-deriv";
-  const { pathname } = new URL(request.url);
+  const { cf, url } = request;
+  const { country, isEUCountry } = cf;
+  const redirect_path = "move-to-deriv";
 
   if (
-    pathname !== redirect_path && // This is to avoid redirection loop
-    ((country !== null && country_map.includes(country)) || isEUCountry)
+    !url.includes(redirect_path) && // This is to avoid redirection loop
+    ((country !== null && country_map.includes(country)) || isEUCountry) // Combination of Cloudflare EU country tracker and our custom country code tracker
   ) {
-    const url = `https://www.binary.com${redirect_path}`;
+    const url = `https://www.binary.com/${redirect_path}`;
     return Response.redirect(url);
   } else {
     return fetch(request);
