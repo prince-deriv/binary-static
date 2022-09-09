@@ -17,10 +17,12 @@ require('./_common/lib/plugins');
 require('jquery.scrollto');
 
 const BinaryLoader = require('./app/base/binary_loader');
+const { showLoading } = require('./_common/utility');
 
 document.addEventListener('DOMContentLoaded', BinaryLoader.init);
 $(window).on('pageshow', (e) => { // Safari doesn't fire load event when using back button
     if (e.originalEvent.persisted) {
+        showLoading();
         BinaryLoader.init();
     }
 });

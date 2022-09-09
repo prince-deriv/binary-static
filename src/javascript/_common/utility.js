@@ -13,6 +13,20 @@ const showLoadingImage = (container, theme = 'dark') => {
     container.html(loading_div);
 };
 
+const removeLoadingImage = (loading_wrapper) => {
+    document.body.removeChild(loading_wrapper);
+};
+
+function showLoading() {
+    if (!document.getElementById('redirect-loading')) {
+        const loading_wrapper = document.createElement('div');
+        loading_wrapper.id = 'redirect-loading';
+        loading_wrapper.classList.add('redirect-loader');
+        document.body.appendChild(loading_wrapper);
+        showLoadingImage(document.getElementById('redirect-loading'));
+    }
+}
+
 /**
  * Returns the highest z-index in the page.
  * Accepts a selector to only check those elements,
@@ -438,4 +452,6 @@ module.exports = {
     removeObjProperties,
     lc_licenseID,
     lc_clientID,
+    showLoading,
+    removeLoadingImage,
 };

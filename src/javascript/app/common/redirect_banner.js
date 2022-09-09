@@ -3,21 +3,23 @@ const DerivBanner = require('./deriv_banner');
 const BinarySocket = require('../base/socket');
 const State = require('../../_common/storage').State;
 const Client = require('../base/client');
+const { showLoading, hideLoadingImage } = require('../../_common/utility');
 const isEuCountrySelected      = require('../../_common/utility').isEuCountrySelected;
 
 const RedirectBanner = (() => {
-
     const onLoad = () => {
+        showLoading();
         BinarySocket.wait('authorize', 'website_status', 'landing_company').then(() => {
-
             const eu_country = isEuCountrySelected(Client.get('residence')) || isEuCountrySelected(State.getResponse('website_status.clients_country'));
-            // eslint-disable-next-line no-console
-            console.log(Cookies.get('row-lp-visited'), 'row-lp-visited');
+            
             if (eu_country) {
                 handleRedirect();
             } else if (!Cookies.get('row-lp-visited')) {
                 handleRowRedirect();
             }
+            setTimeout(() => {
+                hideLoadingImage();
+            }, 2000);
         });
 
     };
@@ -47,6 +49,8 @@ const RedirectBanner = (() => {
                 handleRedirect();
             } else if (eu_country && virtual_account) {
                 handleRedirect();
+            } else if (!Cookies.get('row-lp-visited')) {
+                handleRowRedirect();
             }
 
         });
