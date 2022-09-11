@@ -19,7 +19,6 @@ const ClientBase            = require('../../_common/base/client_base');
 const GTM                   = require('../../_common/base/gtm');
 const LiveChat              = require('../../_common/base/livechat');
 const Login                 = require('../../_common/base/login');
-const { showLoading } = require('../../_common/utility');
 const toTitleCase           = require('../../_common/string_util').toTitleCase;
 
 const BinaryLoader = (() => {
