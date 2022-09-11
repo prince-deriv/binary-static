@@ -8,7 +8,9 @@ const isEuCountrySelected      = require('../../_common/utility').isEuCountrySel
 
 const RedirectBanner = (() => {
     const onLoad = () => {
-        showLoading();
+        if (location.pathname && location.pathname.includes('home.html')) {
+            showLoading();
+        }
         BinarySocket.wait('authorize', 'website_status', 'landing_company').then(() => {
             const eu_country = isEuCountrySelected(Client.get('residence')) || isEuCountrySelected(State.getResponse('website_status.clients_country'));
             
