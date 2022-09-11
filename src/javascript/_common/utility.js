@@ -13,9 +13,11 @@ const showLoadingImage = (container, theme = 'dark') => {
     container.html(loading_div);
 };
 
-const removeLoadingImage = (loading_wrapper) => {
+function removeLoadingImage () {
+    const loading_wrapper = document.getElementById('redirect-loading');
+    if (!loading_wrapper) return;
     document.body.removeChild(loading_wrapper);
-};
+}
 
 function showLoading() {
     if (!document.getElementById('redirect-loading')) {
@@ -23,6 +25,8 @@ function showLoading() {
         loading_wrapper.id = 'redirect-loading';
         loading_wrapper.classList.add('redirect-loader');
         document.body.appendChild(loading_wrapper);
+        showLoadingImage(document.getElementById('redirect-loading'));
+    } else {
         showLoadingImage(document.getElementById('redirect-loading'));
     }
 }

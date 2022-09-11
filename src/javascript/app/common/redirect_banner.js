@@ -3,7 +3,7 @@ const DerivBanner = require('./deriv_banner');
 const BinarySocket = require('../base/socket');
 const State = require('../../_common/storage').State;
 const Client = require('../base/client');
-const { showLoading, hideLoadingImage } = require('../../_common/utility');
+const { showLoading, removeLoadingImage } = require('../../_common/utility');
 const isEuCountrySelected      = require('../../_common/utility').isEuCountrySelected;
 
 const RedirectBanner = (() => {
@@ -18,7 +18,7 @@ const RedirectBanner = (() => {
                 handleRowRedirect();
             }
             setTimeout(() => {
-                hideLoadingImage();
+                removeLoadingImage();
             }, 2000);
         });
 
