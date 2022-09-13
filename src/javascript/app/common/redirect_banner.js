@@ -21,7 +21,7 @@ const RedirectBanner = (() => {
             }
             setTimeout(() => {
                 removeLoadingImage();
-            }, 2000);
+            }, 1000);
         });
 
     };

@@ -51,7 +51,6 @@ const Layout = () => {
             <Head />
             <body className={it.language}>
                 <div id='msg_notification' className='notice-msg center-text' />
-                <div id='redirect-loading' className='redirect-loader' />
                 <div id='page-wrapper'>
                     <Header />
                     <div id='content-holder'>

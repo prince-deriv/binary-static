@@ -128,7 +128,9 @@ const Page = (() => {
         }
         if (Client.isLoggedIn()) {
             BinarySocket.wait('authorize', 'website_status', 'get_account_status').then(() => {
-                removeLoadingImage();
+                setTimeout(() => {
+                    removeLoadingImage();
+                }, 1000);
                 RealityCheck.onLoad();
                 Menu.init();
                 const is_uk_residence = (Client.get('residence') === 'gb' || State.getResponse('website_status.clients_country') === 'gb');
