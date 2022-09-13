@@ -49,6 +49,7 @@ const Page = (() => {
     };
 
     const onDocumentReady = () => {
+      
         // LocalStorage can be used as a means of communication among
         // different windows. The problem that is solved here is what
         // happens if the user logs out or switches loginid in one
@@ -84,7 +85,33 @@ const Page = (() => {
         });
     };
 
+    const contentCheckPlaceholder =  {
+        show: () => {
+            contentCheckPlaceholder.hide();
+
+            const placeholder_container = $('<div id="content-placeholder-container"/>');
+
+            placeholder_container.css({
+                'position'  : 'fixed',
+                'top'       : '0px',
+                'left'      : '0px',
+                'z-index'   : '99999',
+                'width'     : '100vw',
+                'height'    : '100vh',
+                'background': '#ffffff',
+            });
+
+            $('body').append(placeholder_container);
+        },
+        hide: ()=> {
+            $('#content-placeholder-container').remove();
+        },
+    };
+
     const onLoad = () => {
+        // Added a container layer to avoid showing any page before the redirection check is done.
+        contentCheckPlaceholder.show();
+
         if (State.get('is_loaded_by_pjax')) {
             Url.reset();
             updateLinksURL('#content');
@@ -128,6 +155,7 @@ const Page = (() => {
         }
         if (Client.isLoggedIn()) {
             BinarySocket.wait('authorize', 'website_status', 'get_account_status').then(() => {
+                contentCheckPlaceholder.hide();
                 setTimeout(() => {
                     removeLoadingImage();
                 }, 1000);
