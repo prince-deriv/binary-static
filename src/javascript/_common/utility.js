@@ -16,7 +16,8 @@ const showLoadingImage = (container, theme = 'dark') => {
 function removeLoadingImage () {
     const loading_wrapper = document.getElementById('redirect-loading');
     if (!loading_wrapper) return;
-    document.body.removeChild(loading_wrapper);
+    const parent = loading_wrapper.parentNode;
+    parent.removeChild(loading_wrapper);
 }
 
 function showLoading() {
