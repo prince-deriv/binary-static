@@ -97,20 +97,9 @@ const Page = (() => {
             init();
             if (!isLoginPages()) {
                 Language.setCookie(Language.urlLang());
-                const url_query_strings = Url.paramsHash();
-
                 if (!ClientBase.get('is_virtual')) {
                     // TODO: uncomment below to enable interview popup dialog
                     // InterviewPopup.onLoad();
-                }
-                
-                // Handle opening livechat via URL
-                const is_livechat_open = url_query_strings.is_livechat_open === 'true';
-
-                if (is_livechat_open && window.LiveChatWidget) {
-                    window.LiveChatWidget.on('ready', () => {
-                        window.LC_API.open_chat_window();
-                    });
                 }
             }
             removeBranding();
@@ -160,7 +149,7 @@ const Page = (() => {
                 } else {
                     DerivBanner.loginOnLoad();
                 }
-                
+
             });
         } else {
             Menu.init();

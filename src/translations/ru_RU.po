@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: binary-static\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2022-10-12 02:38\n"
+"PO-Revision-Date: 2022-10-19 05:47\n"
 "Last-Translator: \n"
 "Language-Team: Russian\n"
 "MIME-Version: 1.0\n"
@@ -1662,9 +1662,6 @@ msgstr "Сайберджайя, центр высоких технологий, 
 
 msgid "As a result, the client's trades are executed at market as follows:"
 msgstr "В результате, контракты клиента будут исполняться по рыночной цене следующим образом:"
-
-msgid "As a strong proponent of open source, we encourage publication of findings, methods, and tools via GitHub and our technical blog at %1 You will also assist our developers in understanding and patching the bugs that you find."
-msgstr "Будучи сторонником систем с открытым исходным кодом, мы поощряем публикацию результатов, методов и инструментов на GitHub и в рамках нашего технического блога %1 . Также вы будете помогать нашим разработчикам лучше понимать и фиксировать найденные вами баги."
 
 msgid "As an example, Expert Advisors might be able to be programmed for"
 msgstr "Например, Expert Advisors могут быт запрограммированы для следующих целей"
@@ -3827,7 +3824,7 @@ msgid "Deposit: Instant"
 msgstr "Пополнения: Мгновенно"
 
 msgid "Deposits and withdrawals for your MT5 account always pass through your binary options account."
-msgstr ""
+msgstr "Пополнение и вывод средств со счета MT5 всегда осуществляется через счет для бинарных опционов."
 
 msgid "Deposits and/or payments due are to be made in the currency chosen by the client from the ones specified by DIEL from time to time."
 msgstr "Пополнение счёта и любые причитающиеся платежи должны быть выполнены в валюте, выбранной клиентом из списка, периодически предоставляемого DIEL."
@@ -9572,9 +9569,6 @@ msgstr "Прочтите наше простое введение в торго�
 msgid "Read the %1 company blog"
 msgstr "Посетите блог %1"
 
-msgid "Read the %1 tech blog"
-msgstr "Посетите технический блог %1"
-
 msgid "Ready to trade?"
 msgstr "Готовы к работе?"
 
@@ -13467,10 +13461,10 @@ msgid "Transfer funds between your real money accounts."
 msgstr "Перевод средств между реальными счетами."
 
 msgid "Transfer funds from your MT5 account into your binary options account."
-msgstr ""
+msgstr "Переведите средства со счета MT5 на счет для бинарных опционов."
 
 msgid "Transfer funds from your binary options account into your MT5 account."
-msgstr ""
+msgstr "Переведите средства со счета для бинарных опционов на счет MT5."
 
 msgid "Transfer funds to a payment agent"
 msgstr "Перевод средств платежному агенту"
