@@ -86,12 +86,10 @@ const Page = (() => {
     const onLoad = () => {
         const host_name = $(location).attr('hostname');
         const removeBranding = () => {
-            if (host_name !== 'localhost' && host_name !== 'www.binary.com') {
+            if (host_name !== 'localhost' && host_name !== 'binary.com') {
                 $('.remove-branding').remove();
             }
         };
-        /* eslint-disable */
-        console.log('current hostname: ', host_name);
         if (State.get('is_loaded_by_pjax')) {
             Url.reset();
             updateLinksURL('#content');
