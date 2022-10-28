@@ -86,7 +86,7 @@ const Page = (() => {
     const onLoad = () => {
         const host_name = $(location).attr('hostname');
         const removeBranding = () => {
-            if (host_name !== 'localhost' && host_name !== 'binary.com' && host_name !== 'staging.binary.com' || !host_name.includes('binary-static-git-fork')) {
+            if (host_name !== 'localhost' && host_name !== 'binary.com' && host_name !== 'staging.binary.com' && !host_name.includes('binary-static-git-fork')) {
                 $('.remove-branding').remove();
             }
         };
